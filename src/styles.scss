@@ -1,1 +1,99 @@
 /* You can add global styles to this file, and also import other style files */
+$fa-font-path: "~font-awesome/fonts";
+$material-icons-font-path: '~material-icons/iconfont/';
+@import '~font-awesome/scss/font-awesome.scss';
+@import '~material-icons/iconfont/material-icons.scss';
+@import "~bootstrap/scss/bootstrap.scss";
+
+$htr-teal: #2384A7;
+$htr-sand: #FFB92D;
+
+body {
+	background-color: #f0f0f0;
+}
+.btn-primary, .bg-primary {
+	background-color: $htr-teal !important;
+	border-color: $htr-teal !important;
+}
+.btn-alt {
+	background-color: $htr-sand !important;
+	border-color: $htr-sand !important;
+	color: #fff;
+	&:hover {
+		background-color: darken($htr-sand, 10%) !important;
+		border-color: darken($htr-sand, 10%) !important;
+	}
+}
+.btn-outline-primary {
+	color: $htr-teal !important;
+	border-color: $htr-teal !important;
+	&:hover {
+		color: #fff !important;
+		background-color: $htr-teal !important;
+	}
+}
+.btn-primary:hover, .btn-primary.active {
+	background-color: darken($htr-teal, 10) !important;
+}
+.btn-primary:focus, {
+	box-shadow: none;
+}
+.btn-outline-light:hover {
+	color: $htr-teal !important;
+}
+.btn {
+	.material-icons {
+		top: 6px;
+		line-height: 0;
+		position: relative;
+	}
+}
+
+.badge {
+    color: #fff;
+	&.badge-assigned { background-color: $htr-teal !important; }
+	&.badge-unassigned { background-color: $htr-sand !important; }
+	&.badge-invoiced { background-color: #343a40 !important; }
+	&.badge-closed { background-color: #dc3545 !important; }
+	&.badge-hold { background-color: #353EB6 !important; }
+	&.badge-priority4 { background-color: $htr-teal !important; }
+	&.badge-priority3 { background-color: #28a745 !important; }
+	&.badge-priority2 { color: #111; background-color: #ffc107 !important; }
+	&.badge-priority1 { background-color: #dc3545 !important; }
+}
+
+.card.service-note .card-header {
+	background-color: $htr-teal;
+	color: #fff;
+	.accordion-toggle {
+		font-size: 1.125rem;
+		i.material-icons.attachment {
+			transform: rotate(-45deg);
+			position: relative;
+			position: relative;
+		    top: 10px;
+		    font-size: 32px;
+		    line-height: 1rem;
+		    height: 0px;
+		}
+		i.material-icons.arrow {
+			transform: rotate(-90deg);
+			transition: transform 0.4s ease-out;
+			position: relative;
+			top: 4px;
+		}
+		&[aria-expanded='true'] {
+			i.material-icons.arrow {
+				transform: rotate(0deg);
+				transition: transform 0.4s ease-out;
+			}
+		}
+	}
+}
+bs-datepicker-container {
+	z-index: 100;
+}
+
+.form-group {
+	position: relative;
+}

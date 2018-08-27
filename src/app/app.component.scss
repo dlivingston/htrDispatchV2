@@ -1,0 +1,20 @@
+#htr-logo-full {
+	height: 60px;
+}
+#htr-logo-sm {
+	height: 40px;
+}
+
+svg {
+	.fill-white {
+		fill: #ffffff;
+	}
+	.fill-red {
+		fill: #ed1c24;
+	}
+}
+.navbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}

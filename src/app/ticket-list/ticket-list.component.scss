@@ -1,0 +1,264 @@
+$htr-teal: #2384A7;
+h1 {
+	font-size: 1.75rem;
+	@media (max-width: 575.98px) {
+		font-size: 1.625rem;
+	}
+}
+.fs-sm {
+	font-size: 0.8rem;
+}
+.details-link {
+	display: block;
+	width: 24px;
+    height: 24px;
+    border: 2px solid white;
+    border-radius: 50%;
+    position: relative;
+    right: -10px;
+	.material-icons {
+		top: 4px;
+		//left: -6px;
+		right: 1px;
+		line-height: 0;
+		position: relative;
+	}
+}
+.btn.toggle {
+	&.ascend {
+		i.material-icons {
+			transform: rotateX(0deg);
+			transition: transform 0.4s ease-out;
+		}
+	}
+	&.descend {
+		i.material-icons {
+			transform: rotateX(180deg);
+			transition: transform 0.4s ease-out;
+		}
+	}
+}
+.page-link {
+	background-color: $htr-teal;
+	color: #ffffff;
+}
+.option-item:last-child{
+	.comma-space {
+		display: none;
+	}
+}
+.btn.filters, .btn.options {
+	color: $htr-teal;
+	padding-left: 0;
+	text-decoration: none;
+	&.closed {
+		i.material-icons {
+			transform: rotate(0deg);
+			transition: transform 0.4s ease-out;
+		}
+	}
+	&.open {
+		i.material-icons {
+			transform: rotate(180deg);
+			transition: transform 0.4s ease-out;
+		}
+	}
+
+}
+.card.filters, .card.options {
+	border-top: 1px solid $htr-teal;
+	border-bottom: 1px solid $htr-teal;
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+	.collapse {
+		max-height: 0;
+		transition: all 0.4s ease-out;
+		display: block;
+		overflow: hidden;
+		.card-body {
+			opacity: 0;
+			transition: opacity 0.25s ease-out;
+			transition-delay: 0.3s;
+		}
+		&.show {
+			max-height: 250px;
+			transition: all 0.4s ease-out;
+			overflow: initial;
+			.card-body {
+				opacity: 1;
+				transition: opacity 0.25s ease-out;
+				transition-delay: 0.3s;
+			}
+		}
+	}
+}
+.card.options {
+	border: 0;
+	.switch {
+		position: relative;
+		display: inline-block;
+		width: 36px;
+		height: 24px;
+		border-radius: 0.25rem;
+		margin: 0;
+	  }
+	.switch input {display:none;}
+	/* The slider */
+	.slider {
+		position: absolute;
+		cursor: pointer;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #ccc;
+		-webkit-transition: .4s;
+		transition: .4s;
+		border-radius: 5px;
+		box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.45);
+	}
+  
+	.slider:before {
+		position: absolute;
+		content: "";
+		height: 22px;
+		width: 12px;
+		left: 1px;
+		bottom: 1px;
+		background-color: white;
+		-webkit-transition: .4s;
+		transition: .4s;
+		border-radius: 0.25rem;
+	}
+  
+  input:checked + .slider {
+	background-color: $htr-teal;
+  }
+  
+  input:focus + .slider {
+	box-shadow: 0 0 1px $htr-teal;
+  }
+  
+  input:checked + .slider:before {
+	-webkit-transform: translateX(22px);
+	-ms-transform: translateX(22px);
+	transform: translateX(22px);
+  }
+}
+.status-selection,
+.priority-selection,
+.assigned-selection {
+	.dropdown-item {
+		padding: 0.25rem 0.75rem;
+		font-size: 0.875rem;
+		i.material-icons {
+			font-size: 1rem;
+			position: relative;
+			top: 2px;
+		}
+		.badge {
+			font-size: 0.875rem;
+		}
+	}
+}
+.status-selection {
+	.dropdown-item {
+		.badge {
+			width: 100%;
+		}
+	}
+}
+.text-wrapper {
+	max-height: 3rem;
+	display: block;
+	overflow: hidden;
+}
+.nowrap {
+	white-space: nowrap;
+}
+@media (max-width: 47.9em) {
+	.card-header { padding-left: 0.75rem; }
+	.card-body {
+		padding: 0.75rem;
+	}
+	.status-selection,
+	.priority-selection,
+	.assigned-selection {
+		.btn {
+			font-size: 0.875rem;
+		}
+
+	}
+	.form-control {
+		font-size: 0.875rem;
+	}
+}
+.ticket-list-tableview {
+	font-size: 0.75rem;
+	thead tr {
+		border-radius: 4px;
+	}
+	thead th {
+		border: 0;
+		padding-top: 4px;
+		white-space: nowrap;
+		&:first-child {
+			border-top-left-radius: 4px;
+		}
+		&:last-child {
+			border-top-right-radius: 4px;
+		}
+		&.clickable {
+			text-decoration: underline;
+			cursor: pointer;
+			white-space: nowrap;
+			&:hover {
+				background-color: darken($htr-teal, 10%);
+			}
+			.ascend {
+				i.material-icons {
+					transform: rotateX(0deg);
+					transition: transform 0.4s ease-out;
+				}
+			}
+			.descend {
+				i.material-icons {
+					transform: rotateX(180deg);
+					transition: transform 0.4s ease-out;
+				}
+			}
+		}
+		i.material-icons {
+			position: relative;
+			top: 6px;
+		}
+	}
+	tbody tr {
+		cursor: pointer;
+	}
+	.ticket-id-col {
+		width: 12ch;
+		white-space: nowrap;
+	}
+	.client-name-col,
+	.client-loc-col {
+		max-width: 0;
+		width: 25ch;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.issue-col {
+		width: 30ch;
+		.issue-wrapper {
+			max-height: 36px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+	.updated-col, .srvc-date-col {
+		width: 10ch;
+	}
+
+}

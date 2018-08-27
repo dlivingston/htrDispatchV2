@@ -1,0 +1,20 @@
+<div class="container py-5" *ngIf="!(authService.user | async)?.uid">
+  <div class="row justify-content-center">
+    <div class="card col-md-6">
+      <div class="card-body">
+        <div class="form-group">
+          <input type="email" [(ngModel)]="email" class="form-control" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+          <input type="password" [(ngModel)]="password" class="form-control" placeholder="Password">
+        </div>
+        <div class="row justify-content-center">
+          <button (click)="login()" class="btn btn-primary" [disabled]="!email || !password">Sign In</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container justify-content-center py-3" *ngIf="(authService.user | async)?.uid">
+  <button class="btn btn-primary" [routerLink]="['/ticket-list']">Go to Dispatch List</button>
+</div>
