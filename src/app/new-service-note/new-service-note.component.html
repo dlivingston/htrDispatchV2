@@ -1,3 +1,22 @@
-<p>
-  new-service-note works!
-</p>
+<div class="card bg-light mb-3">
+  <div class="card-body">
+    <form #srvNoteForm="ngForm">
+      <div class="form-group">
+        <app-ngx-editor [config]="editorConfig" [placeholder]="editorConfig.placeholder" [(ngModel)]="serviceNoteInfo" name="serviceNoteInfo"></app-ngx-editor>
+      </div>
+      <div class="row">
+        <div class="col">
+          <!-- <label class="custom-file mb-3">
+						<input type="file" class="custom-file-input" (change)="detectFiles($event)">
+						<span class="custom-file-control"><span *ngFor="let file of selectedFiles">{{file.name}}</span></span>
+					</label> -->
+          <upload-form [parentKey]="noteTimeStamp" (fileUploadData)="addUploadFile($event)"></upload-form>
+        </div>
+        <div class="col">
+          <button class="btn btn-success float-right" (click)="saveNote(srvNoteForm)" [attr.disabled]="(!serviceNoteFileDetails && !serviceNoteInfo) ? '' : null">Save Note</button>
+          <button class="btn btn-secondary float-right mr-2" (click)="cancelNote(srvNoteForm)">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

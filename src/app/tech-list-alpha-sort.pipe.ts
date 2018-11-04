@@ -7,8 +7,8 @@ export class TechListAlphaSortPipe implements PipeTransform {
 
   transform(techs: any[], args: any): any {
     function compare(a, b) {
-      const techA = a.name.toLowerCase();
-      const techB = b.name.toLowerCase();
+      const techA = a.payload.val().name.toLowerCase();
+      const techB = b.payload.val().name.toLowerCase();
 
       let comparison = 0;
       if (techA > techB) {
@@ -20,7 +20,7 @@ export class TechListAlphaSortPipe implements PipeTransform {
     }
     if (techs) {
       let returnArray = techs.sort(compare);
-      let unassignedIndex = returnArray.map(tech => tech.name).indexOf('Unassigned');
+      let unassignedIndex = returnArray.map(tech => tech.payload.val().name).indexOf('Unassigned');
       returnArray.push(returnArray.splice(unassignedIndex, 1)[0]);
       return returnArray;
     }

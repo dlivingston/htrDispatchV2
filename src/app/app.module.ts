@@ -1,12 +1,19 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
+import { AngularFireStorageModule } from 'angularfire2/storage';
 import { environment } from '../environments/environment';
+
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { AccordionModule } from 'ngx-bootstrap/accordion';
+import { NgxEditorModule } from 'ngx-editor';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
@@ -28,6 +35,11 @@ import { TicketDetailsComponent } from './ticket-details/ticket-details.componen
 import { NewTicketComponent } from './new-ticket/new-ticket.component';
 import { NewServiceNoteComponent } from './new-service-note/new-service-note.component';
 import { ServiceNoteComponent } from './service-note/service-note.component';
+import { UploadService } from './shared/upload.service';
+import { UploadFormComponent } from './shared/upload-form/upload-form.component';
+import { TimeTrackerComponent } from './time-tracker/time-tracker.component';
+import { ActivityLogComponent } from './activity-log/activity-log.component';
+import { ElapsedTimePipe } from './elapsed-time.pipe';
 
 const appRoutes: Routes = [
   { path: '', component: LoginComponent },
@@ -57,20 +69,34 @@ const appRoutes: Routes = [
     TicketDetailsComponent,
     NewTicketComponent,
     NewServiceNoteComponent,
-    ServiceNoteComponent
+    ServiceNoteComponent,
+    UploadFormComponent,
+    TimeTrackerComponent,
+    ActivityLogComponent,
+    ElapsedTimePipe
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
+    HttpClientModule,
     RouterModule.forRoot(
       appRoutes, {}
     ),
+    BsDatepickerModule.forRoot(),
+    ModalModule.forRoot(),
+    AccordionModule.forRoot(),
+    NgxEditorModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
+    AngularFireStorageModule,
     AngularFireAuthModule
+  ], 
+  entryComponents: [
+    TimeTrackerComponent,
+    ActivityLogComponent
   ],
-  providers: [],
+  providers: [UploadService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

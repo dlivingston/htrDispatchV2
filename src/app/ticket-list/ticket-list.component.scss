@@ -233,6 +233,7 @@ h1 {
 			position: relative;
 			top: 6px;
 		}
+		
 	}
 	tbody tr {
 		cursor: pointer;
@@ -261,4 +262,32 @@ h1 {
 		width: 10ch;
 	}
 
+}
+i.icon {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background-repeat: no-repeat;
+	background-size: 16px;
+	background-position: center;
+	position: relative;
+	top: 2px;
+	&.in-progress-icon-green{
+		width: 18px;
+		height: 18px;
+		background-size: 18px;
+		top: 0;
+	}
+}
+svg {
+	width: 9px;
+	height: 18px;
+	.bolt-icon {
+		fill: #ffffff;
+	}
+	&.active {
+		.bolt-icon {
+			fill: #ed1c24;
+		}
+	}
 }

@@ -1,0 +1,14 @@
+.table { font-size: 0.75rem; }
+
+.card-text { 
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+    &:last-child {
+        margin-bottom: 0;
+    } 
+}
+
+.modal-body {
+    max-height: 90vh;
+    overflow-y: scroll;
+}

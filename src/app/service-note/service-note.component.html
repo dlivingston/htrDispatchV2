@@ -1,3 +1,35 @@
-<p>
-  service-note works!
-</p>
+<accordion [closeOthers]="true">
+  <accordion-group *ngFor="let note of notes | async" class="mb-3" panelClass="service-note">
+    <div accordion-heading class="">
+      <i class="material-icons arrow">arrow_drop_down</i>
+      <span *ngIf="(note.userName)"> {{note.userName}} - </span>{{ note.timeStamp | date:'short' }} 
+      <span *ngIf="(currentUser | async)?.isAdmin" class="float-right ml-2">
+        <button class="btn btn-danger btn-sm" (click)="confirmDelete(snDeleteConfirm)">
+          <i class="material-icons delete">delete</i>
+        </button>
+      </span> 
+      <span *ngIf="note.attachedFileName" class="float-right">
+        <i class="material-icons attachment">attachment</i>
+      </span>
+    </div>
+    <p *ngIf="note.serviceNoteInfo" innerHTML={{note.serviceNoteInfo}}></p>
+    <p *ngIf="note.attachedFileUrl">
+      <a href="{{note.attachedFileUrl}}" target="_blank">{{note.attachedFileName}}</a>
+    </p>
+    <ng-template #snDeleteConfirm>
+      <div class="modal-header bg-danger">
+        <h4 class="modal-title pull-left text-white">Delete Service Note</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this Service Note?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="modalRef.hide()">Nope</button>
+        <button class="btn btn-danger" (click)="deleteServiceNote(note.key)">Delete</button>
+      </div>
+    </ng-template>
+  </accordion-group>
+</accordion>

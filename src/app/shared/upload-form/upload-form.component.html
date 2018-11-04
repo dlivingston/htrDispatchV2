@@ -1,0 +1,15 @@
+<div class="custom-file mb-3">
+  <input type="file" class="custom-file-input" (change)="detectFiles($event)">
+  <label class="custom-file-label"><span *ngIf="!selectedFiles">Choose file</span> <span *ngFor="let file of selectedFiles">{{file.name}}</span></label>
+</div>
+<div class="row">
+  <div class="col">
+    <button class="btn btn-primary btn-block" *ngIf="selectedFiles" (click)="uploadSingle()"> Upload <i class="material-icons">file_upload</i></button>
+  </div>
+</div>
+<div *ngIf="currentUpload" class="mt-2">
+  <div class="progress">
+    <progress class="progress-bar bg-success" min=1 max=100 value="{{ currentUpload?.progress }}"></progress>
+  </div>
+  <p>Progress: {{currentUpload?.name}} | {{currentUpload?.progress}}% Complete</p>
+</div>

@@ -67,16 +67,12 @@ export class TicketListComponent implements OnInit {
         this.currentUser = this.af.object('/users/' + auth_user.uid);
         let tech = this.af.object('/techs/' + auth_user.uid);
         tech.snapshotChanges().subscribe(snapshot => {
-          console.log('snapshot', snapshot);
           if (snapshot.key) {
             this.currentUserIsTech = true;
-            console.log('User is Tech');
           } else {
             this.currentUserIsTech = false;
-            console.log('User is NOT Tech');
           }
           this.currentUser.snapshotChanges().subscribe(current_user => {
-            console.log("current_user", current_user.payload.val());
             this.currentUserName = current_user.payload.val().name;
 
             if (current_user.payload.val().selectedListView) {
@@ -122,13 +118,26 @@ export class TicketListComponent implements OnInit {
 
       }
     });
-    this.firstTicket = af.list('/tickets').valueChanges();
-    this.firstTicket.subscribe(snapshots => {
+    this.newestTicket = af.list('/tickets', ref => ref.orderByChild('id').limitToLast(1)).valueChanges();
+    this.newestTicket.subscribe(snapshots => {
       snapshots.forEach(snapshot => {
-        this.firstTicketId = snapshot.key;
+        this.newestTicketId = snapshot.id;
+        const currentPageNum = ('0000000' + (this.parseTicketNum(this.newestTicketId) - (this.listLimit - 1)).toString()).slice(-7);
+        this.currentPageStart = ['HTR-', currentPageNum.slice(0, 3), '-', currentPageNum.slice(3)].join('');
+        const nextPageNum = ('0000000' + (this.parseTicketNum(this.currentPageStart) - this.listLimit).toString()).slice(-7);
+        this.nextPageStart = ['HTR-', nextPageNum.slice(0, 3), '-', nextPageNum.slice(3)].join('');
+        const prevPageNum = ('0000000' + (this.parseTicketNum(this.currentPageStart) + this.listLimit).toString()).slice(-7);
+        this.prevPageStart = ['HTR-', prevPageNum.slice(0, 3), '-', prevPageNum.slice(3)].join('');
       });
     });
-    this.techs = af.list('/techs').valueChanges();
+    this.firstTicket = af.list('/tickets', ref => ref.orderByChild('id').limitToFirst(1)).valueChanges();
+    
+    this.firstTicket.subscribe(snapshots => {
+      snapshots.forEach(snapshot => {
+        this.firstTicketId = snapshot.id;
+      });
+    });
+    this.techs = af.list('/techs').snapshotChanges();
     this.viewFilter = false;
     this.viewOptions = false;
   }
@@ -156,36 +165,17 @@ export class TicketListComponent implements OnInit {
 
   toggleListView(listView) {
     this.listView = listView;
-    
-    console.log('tickets', this.tickets);
     if (listView === 'assigned') {
       this.currentUser.update({ selectedListView: this.listView });
       this.tickets = this.af.list('/tickets', ref => ref.orderByChild('assigned_tech').equalTo(this.currentUserId)).valueChanges();
-      // this.tickets = this.af.list('/tickets', {
-      //   query: {
-      //     orderByChild: 'assigned_tech',
-      //     equalTo: this.currentUserId
-      //   }
-      // });
     }
     if (listView === 'paged') {
       this.currentUser.update({ selectedListView: this.listView });
       this.tickets = this.af.list('/tickets', ref => ref.orderByChild('id').limitToLast(this.listLimit)).valueChanges();
-      // this.tickets = this.af.list('/tickets', {
-      //   query: {
-      //     orderByChild: 'id',
-      //     limitToLast: this.listLimit
-      //   }
-      // });
     }
     if (listView === 'full') {
       this.currentUser.update({ selectedListView: this.listView });
       this.tickets = this.af.list('/tickets', ref => ref.orderByChild('id')).valueChanges();
-      // this.tickets = this.af.list('/tickets', {
-      //   query: {
-      //     orderByChild: 'id'
-      //   }
-      // });
     }
   }
 
@@ -268,12 +258,6 @@ export class TicketListComponent implements OnInit {
     const prevPageNum = ('0000000' + (this.parseTicketNum(this.currentPageStart) + this.listLimit).toString()).slice(-7);
     this.prevPageStart = ['HTR-', prevPageNum.slice(0, 3), '-', prevPageNum.slice(3)].join('');
     this.tickets = this.af.list('/tickets', ref => ref.orderByChild('id').limitToLast(this.listLimit)).valueChanges();
-    // this.tickets = this.af.list('/tickets', {
-    //   query: {
-    //     orderByChild: 'id',
-    //     limitToLast: this.listLimit
-    //   }
-    // });
     this.prevBtnActive = false;
     this.nextBtnActive = true;
   }
@@ -282,13 +266,6 @@ export class TicketListComponent implements OnInit {
     const nextEndNum = ('0000000' + (this.parseTicketNum(this.prevPageStart) - (this.listLimit + 1)).toString()).slice(-7);
     const nextPageEnd = ['HTR-', nextEndNum.slice(0, 3), '-', nextEndNum.slice(3)].join('');
     this.tickets = this.af.list('/tickets', ref => ref.orderByChild('id').startAt(this.nextPageStart).endAt(nextPageEnd)).valueChanges();
-    // this.tickets = this.af.list('/tickets', {
-    //   query: {
-    //     orderByChild: 'id',
-    //     startAt: this.nextPageStart,
-    //     endAt: nextPageEnd
-    //   }
-    // });
     this.prevBtnActive = true;
     if (this.parseTicketNum(this.nextPageStart) > this.parseTicketNum(this.firstTicketId)) {
       this.prevPageStart = this.currentPageStart;
@@ -308,13 +285,6 @@ export class TicketListComponent implements OnInit {
     const prevEndNum = ('0000000' + (this.parseTicketNum(this.prevPageStart) + (this.listLimit - 1)).toString()).slice(-7);
     const prevPageEnd = ['HTR-', prevEndNum.slice(0, 3), '-', prevEndNum.slice(3)].join('');
     this.tickets = this.af.list('/tickets', ref => ref.orderByChild('id').startAt(this.prevPageStart).endAt(prevPageEnd)).valueChanges();
-    // this.tickets = this.af.list('/tickets', {
-    //   query: {
-    //     orderByChild: 'id',
-    //     startAt: this.prevPageStart,
-    //     endAt: prevPageEnd
-    //   }
-    // });
     this.nextBtnActive = true;
     this.nextPageStart = this.currentPageStart;
     this.currentPageStart = this.prevPageStart;

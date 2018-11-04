@@ -1,0 +1,126 @@
+$htr-teal: #2384A7;
+
+.btn.back {
+	.material-icons {
+		left: -6px;
+		width: 12px;
+	}
+}
+.btn-activate {
+	min-width: 42px;
+	&.disabled, &:disabled {
+		&:hover {
+			svg .bolt-icon  {
+				fill: #f8f9fa;
+			}
+		}
+	}
+	&:hover, &:active {
+		svg {
+			.bolt-icon {
+				fill: $htr-teal;
+			}
+			&.active {
+			.bolt-icon {
+					fill: #ed1c24 !important;
+				}
+			}
+		}
+		
+	}
+}
+.input-group-append {
+	.btn {
+		background-color: #e9ecef;
+		border-color: #ced4da;
+		&:hover {
+			color: darken(#6c757d, 15%);
+		}
+	}
+}
+.form-control-plaintext {
+	display: flex;
+	padding: 8px 12px;
+	border: 1px solid rgba(0,0,0,0);
+	align-items: center;
+	position: relative;
+	flex: 1 1 auto;
+	width: 100%;
+	background: transparent;
+	color: #212529;
+}
+select[disabled].form-control {
+	border: 1px solid rgba(0,0,0,0);
+	background: transparent;
+	color: initial;
+}
+.service-note-toggle {
+	display: block;
+	i.material-icons {
+		transform: rotate(-90deg);
+		transition: transform 0.4s ease-out;
+		position: relative;
+		top: 4px;
+	}
+	&[aria-expanded='true'] {
+		i.material-icons {
+			transform: rotate(0deg);
+			transition: transform 0.4s ease-out;
+		}
+	}
+}
+.card {
+	&.row {
+		margin-right: -0.5rem;
+		margin-left: -0.5rem;
+	}
+	&.part-ordered {
+		.form-check-label {
+			padding-left: 0;
+		}
+	}
+
+}
+.priority {
+	width: 140px;
+	.badge { font-size: 1rem; }
+	.badge-priority4 { border-color: #17a2b8 !important; }
+	.badge-priority3 { border-color: #28a745 !important; }
+	.badge-priority2 { border-color: #ffc107 !important; }
+	.badge-priority1 { border-color: #dc3545 !important; }
+}
+.status {
+	.dropdown-item {
+		.badge { width: 100%; }
+	}
+	.badge { font-size: 1rem; }
+	.badge-assigned { border-color: $htr-teal !important; }
+	.badge-unassigned { border-color: #B58900 !important; }
+	.badge-closed { border-color: #666666 !important; }
+	.badge-hold { border-color: #9B479F !important; }
+}
+i.icon {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background-repeat: no-repeat;
+	background-size: 16px;
+	background-position: center;
+	position: relative;
+	top: 2px;
+	&.bolt-icon-white {
+		background-size: 10px;
+	}
+}
+svg {
+	width: 9px;
+	height: 18px;
+	.bolt-icon {
+		fill: #ffffff;
+	}
+	&.active {
+		.bolt-icon {
+			fill: #ed1c24;
+		}
+	}
+}

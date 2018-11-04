@@ -1,0 +1,36 @@
+<div class="modal-header bg-primary text-white p-2">
+  <h4 class="modal-title pull-left">Time Tracker</h4>
+  <button type="button" class="close pull-right text-white" aria-label="Close" (click)="modalRef.hide()">
+    <span aria-hidden="true"><i class="material-icons">close</i></span>
+  </button>
+</div>
+<div class="modal-body">
+  <div [hidden]="!techClockedIn">
+    <h5>Clocked In</h5>
+    <div innerHTML={{clockedInMessage}}></div>
+    
+  </div>
+  <div [hidden]="techClockedIn">
+    <form #ttForm="ngForm" [ngClass]="formNotValid ? 'was-validated' : ''">
+      <div class="form-group">
+        <label for="ttActivity">Select Current Activity</label>
+        <select class="form-control" name="ttActivity" id="ttActivity" [(ngModel)]="ttActivity" required>
+          <option value="Drive Time" selected>Drive Time</option>
+          <option value="On Site">On Site</option>
+        </select>
+        <div class="invalid-feedback">
+          Please select Current Activity.
+        </div>
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="overtime" [(ngModel)]="overtime" name="overtime">
+        <label class="form-check-label" for="overtime">Overtime</label>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="modal-footer p-2">
+  <button class="btn btn-secondary" (click)="modalRef.hide()">Cancel</button>
+  <button [hidden]="!techClockedIn || clockedInOther" class="btn btn-warning" (click)="ttClockOut()">Clock Out</button>
+  <button [hidden]="techClockedIn" class="btn btn-success" (click)="ttClockIn(ttForm)">Clock In</button>
+</div>

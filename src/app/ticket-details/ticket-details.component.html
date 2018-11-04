@@ -1,3 +1,342 @@
-<p>
-  ticket-details works!
-</p>
+<app-loading-spinner *ngIf="!(authService.user | async)?.uid"></app-loading-spinner>
+
+<div class="container my-3" *ngIf="(authService.user | async)?.uid">
+  <div class="row">
+    <div class="px-2 px-md-3">
+      <button class="btn back btn-alt" [routerLink]="['/ticket-list']"><i class="material-icons">chevron_left</i> Back to Dispatch List</button>
+    </div>
+    <div [hidden]="!currentUserIsTech">
+      <button class="btn btn-success" (click)="openTimeTrackerModal()">Time Tracker <i class="material-icons">alarm</i></button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-10">
+      <h4 class="my-3">Ticket Details</h4>
+    </div>
+    <div class="col-2 d-flex align-content-center justify-content-end">
+      <button class="btn btn-link p-0" (click)="openActivityLog()">Activity Log</button>
+    </div>
+  </div>
+  <div class="card row mb-4">
+    <div class="card-header bg-primary p-2 px-md-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="">
+          <h5 class="text-white m-0">Ticket ID: {{ (ticket | async)?.id }} </h5>
+        </div>
+        <div class="d-flex justify-content-end">
+          <button class="btn btn-sm btn-activate mr-2" [disabled]="(ticket | async)?.assigned_tech !== currentUserId" [ngClass]="ticketActive ? 'btn-info' : 'btn-outline-light'" (click)="toggleActiveTicket()"> 
+            <span *ngIf="(ticketActive)">
+              <span class="d-none d-sm-inline mr-2">In Progress </span>
+              <svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg>
+            </span>
+            <span *ngIf="!(ticketActive)">
+              <span class="d-none d-sm-inline mr-2">Set Active </span>
+              <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg>
+            </span>
+          </button>
+          <button class="btn btn-sm btn-outline-warning float-right" (click)="toggleEditMode()" [hidden]="!editMode"><i class="material-icons">cancel</i></button>
+          <button class="btn btn-sm btn-outline-light float-right" (click)="toggleEditMode()" [hidden]="editMode"><i class="material-icons">mode_edit</i></button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-2 p-md-3">
+      <form #f="ngForm">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="small text-secondary m-0">Client Name</label>
+              <input [ngModel]="(ticket | async)?.client_name" (ngModelChange)="ticket.client_name=$event" name="client_name" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.disabled]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'Client Name' : null" />
+            </div>
+            <div class="form-group">
+              <label class="small text-secondary m-0">Client Location / ID</label>
+              <input [ngModel]="(ticket | async)?.client_loc_id" (ngModelChange)="ticket.client_loc_id=$event" name="client_loc_id" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.disabled]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'Client Location' : null" />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="row mt-4">
+              <div class="col-5 pr-1">
+                <div class="input-group priority mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" [attr.disabled]="!editMode ? '' : null">Priority</button>
+                    <div class="dropdown-menu">
+                      <a (click)="setTicketPriority('1')" class="dropdown-item"><span class="badge badge-priority1">1</span> - Urgent</a>
+                      <a (click)="setTicketPriority('2')" class="dropdown-item"><span class="badge badge-priority2">2</span> - High</a>
+                      <a (click)="setTicketPriority('3')" class="dropdown-item"><span class="badge badge-priority3">3</span> - Normal</a>
+                      <a (click)="setTicketPriority('4')" class="dropdown-item"><span class="badge badge-priority4">4</span> - Low</a>
+                    </div>
+                  </div>
+                  <div class="form-control badge d-flex justify-content-center align-items-center" [ngClass]="{'badge-priority1' : (ticketPriority === '1'), 'badge-priority2' : (ticketPriority === '2'), 'badge-priority3' : (ticketPriority === '3'), 'badge-priority4' : (ticketPriority === '4')}">
+                    {{ticketPriority}}
+                  </div>
+                </div>
+              </div>
+              <div class="col-7 pl-1">
+                <div class="input-group status mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" [attr.disabled]="!editMode ? '' : null">Status</button>
+                    <div class="dropdown-menu">
+                      <a (click)="setTicketStatus('Assigned')" class="dropdown-item"><span class="badge badge-assigned">Assigned</span></a>
+                      <a (click)="setTicketStatus('Unassigned')" class="dropdown-item"><span class="badge badge-unassigned">Unassigned</span></a>
+                      <a (click)="setTicketStatus('Invoiced')" class="dropdown-item"><span class="badge badge-invoiced">Invoiced</span></a>
+                      <a (click)="setTicketStatus('Closed')" class="dropdown-item"><span class="badge badge-closed">Closed</span></a>
+                      <a (click)="setTicketStatus('Hold')" class="dropdown-item"><span class="badge badge-hold">Hold</span></a>
+                    </div>
+                  </div>
+                  <div class="form-control badge d-flex justify-content-center align-items-center" [ngClass]="{'badge-invoiced' : (ticketStatus === 'Invoiced'), 'badge-assigned' : (ticketStatus === 'Assigned'), 'badge-unassigned' : (ticketStatus === 'Unassigned'), 'badge-closed' : (ticketStatus === 'Closed'), 'badge-hold' : (ticketStatus === 'Hold')}">
+                    {{ticketStatus}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 pr-1">
+                <div class="form-group">
+                  <label class="small text-secondary m-0" for="assigned_tech">Assigned Technician</label>
+                  <select id="assigned_tech" name="assigned_tech" [ngModel]="(ticket | async)" [compareWith]="compareFn" (ngModelChange)="onAssignedTechChange($event)" class="custom-select form-control" [attr.disabled]="!editMode ? '' : null">
+                    <option *ngFor="let tech of techs | async | techListAlphaSort" [ngValue]="tech.payload"> {{tech.payload.val().name}} </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group">
+                  <label class="small text-secondary m-0" for="sched_srvc_date">Scheduled Service Date</label>
+                  <div class="input-group date">
+                    <input [ngModel]="(ticket | async)?.sched_srvc_date | date:'short'" (ngModelChange)="ticket.sched_srvc_date=$event" name="sched_srvc_date" id="sched_srvc_date" bsDatepicker #dp="bsDatepicker" [bsConfig]="bsConfig" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.disabled]="!editMode ? '' : null">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary py-1" *ngIf="editMode" for="sched_srvc_date" (click)="dp.show()" type="button"><i class="material-icons">date_range</i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="small text-secondary m-0">Address</label>
+              <div class="card p-3 mb-3">
+                <input [ngModel]="(ticket | async)?.address_ln1" (ngModelChange)="ticket.address_ln1=$event" name="address_ln1" class="mb-3" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.disabled]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'Address Line 1' : null">
+                <input [ngModel]="(ticket | async)?.address_ln2" (ngModelChange)="ticket.address_ln2=$event" name="address_ln2" class="mb-3" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.disabled]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'Address Line 2' : null">
+                <input [ngModel]="(ticket | async)?.address_city" (ngModelChange)="ticket.address_city=$event" name="address_city" class="mb-3" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.disabled]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'City' : null">
+                <div class="row">
+                  <div class="col">
+                    <select [ngModel]="(ticket | async)?.address_state" (ngModelChange)="ticket.address_state=$event" name="address_state" id="address_state" class="custom-select form-control" [attr.disabled]="!editMode ? '' : null">
+                      <option value="AL">AL</option>
+                      <option value="AK">AK</option>
+                      <option value="AR">AR</option>
+                      <option value="AZ">AZ</option>
+                      <option value="CA">CA</option>
+                      <option value="CO">CO</option>
+                      <option value="CT">CT</option>
+                      <option value="DC">DC</option>
+                      <option value="DE">DE</option>
+                      <option value="FL">FL</option>
+                      <option value="GA">GA</option>
+                      <option value="HI">HI</option>
+                      <option value="IA">IA</option>
+                      <option value="ID">ID</option>
+                      <option value="IL">IL</option>
+                      <option value="IN">IN</option>
+                      <option value="KS">KS</option>
+                      <option value="KY">KY</option>
+                      <option value="LA">LA</option>
+                      <option value="MA">MA</option>
+                      <option value="MD">MD</option>
+                      <option value="ME">ME</option>
+                      <option value="MI">MI</option>
+                      <option value="MN" selected>MN</option>
+                      <option value="MO">MO</option>
+                      <option value="MS">MS</option>
+                      <option value="MT">MT</option>
+                      <option value="NC">NC</option>
+                      <option value="NE">NE</option>
+                      <option value="NH">NH</option>
+                      <option value="NJ">NJ</option>
+                      <option value="NM">NM</option>
+                      <option value="NV">NV</option>
+                      <option value="NY">NY</option>
+                      <option value="ND">ND</option>
+                      <option value="OH">OH</option>
+                      <option value="OK">OK</option>
+                      <option value="OR">OR</option>
+                      <option value="PA">PA</option>
+                      <option value="RI">RI</option>
+                      <option value="SC">SC</option>
+                      <option value="SD">SD</option>
+                      <option value="TN">TN</option>
+                      <option value="TX">TX</option>
+                      <option value="UT">UT</option>
+                      <option value="VT">VT</option>
+                      <option value="VA">VA</option>
+                      <option value="WA">WA</option>
+                      <option value="WI">WI</option>
+                      <option value="WV">WV</option>
+                      <option value="WY">WY</option>
+                    </select>
+                  </div>
+                  <div class="col">
+                    <input [ngModel]="(ticket | async)?.address_zip" (ngModelChange)="ticket.address_zip=$event" name="address_zip" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'Zip Code' : null">
+                  </div>
+                </div>
+              </div>
+              <div class="card mb-3">
+                <div class="card-header">
+                  <nav class="nav nav-tabs card-header-tabs" id="contactTabs" role="tablist">
+                    <a href="#primaryContactPanel" id="primaryContactTab" class="nav-item nav-link active" data-toggle="tab" role="tab" aria-controls="primaryContactPanel">Primary</a>
+                    <a href="#secondaryContactPanel" id="secondaryContactTab" class="nav-item nav-link" data-toggle="tab" role="tab" aria-controls="secondaryContactPanel">Secondary</a>
+                  </nav>
+                </div>
+                <div class="card-body tab-content" id="contactPanels">
+                  <div class="tab-pane fade show active" id="primaryContactPanel" role="tabpanel" aria-labelledby="primaryContactTab">
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Contact Name</label>
+                      <input [ngModel]="(ticket | async)?.primary_contact_name" (ngModelChange)="ticket.primary_contact_name=$event" name="primary_contact_name" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" placeholder="Contact Name">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Phone</label>
+                      <input [ngModel]="(ticket | async)?.primary_contact_phone" (ngModelChange)="ticket.primary_contact_phone=$event" name="primary_contact_phone" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" placeholder="Phone Number">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Email</label>
+                      <input [ngModel]="(ticket | async)?.primary_contact_email" (ngModelChange)="ticket.primary_contact_email=$event" name="primary_contact_email" type="email" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" placeholder="email@address.com">
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="secondaryContactPanel" role="tabpanel" aria-labelledby="secondaryContactTab">
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Contact Name</label>
+                      <input [ngModel]="(ticket | async)?.alt_contact_name" (ngModelChange)="ticket.alt_contact_name=$event" name="alt_contact_name" type="text" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" placeholder="Secondary Contact Name">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Phone</label>
+                      <input [ngModel]="(ticket | async)?.alt_contact_phone" (ngModelChange)="ticket.alt_contact_phone=$event" name="alt_contact_phone" type="text" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" placeholder="Phone Number">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Email</label>
+                      <input [ngModel]="(ticket | async)?.alt_contact_email" (ngModelChange)="ticket.alt_contact_email=$event" name="alt_contact_email" type="email" class="" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" placeholder="email@address.com">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="short_desc" class="small text-secondary m-0">Issue</label>
+              <input [ngModel]="(ticket | async)?.short_desc" (ngModelChange)="ticket.short_desc=$event" name="short_desc" id="short_desc" type="text" class="form-control" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'Short Issue Description (50 character max)' : null">
+            </div>
+            <div class="form-group">
+              <label class="small text-secondary m-0" for="desc_notes">Full Description &amp; Notes</label>
+              <app-ngx-editor [config]="editorConfig" [placeholder]="editorConfig.placeholder" [ngModel]="(ticket | async)?.desc_notes" (ngModelChange)="ticket.desc_notes=$event" name="rt_notes" [ngClass]="editMode ? 'edit' : 'editOff'"></app-ngx-editor>
+            </div>
+            
+            <div class="form-check pl-0 mb-3 d-flex align-items-center">
+              <input type="checkbox" [ngModel]="(ticket | async)?.callback" (ngModelChange)="ticket.callback=$event" name="callback" id="callback" [attr.disabled]="!editMode ? '' : null">
+              <label for="callback" class="form-check-label ml-1">
+                Call Back
+              </label>
+            </div>
+            <div class="form-check pl-0 mb-3 d-flex align-items-center">
+              <input type="checkbox" [ngModel]="(ticket | async)?.discount_partial" (ngModelChange)="ticket.discount_partial=$event" name="discount_partial" id="discount_partial" [attr.disabled]="!editMode ? '' : null">
+              <label for="discount_partial" class="form-check-label ml-1">
+                Discount or partial billing
+              </label>
+            </div>
+            <div class="card bg-light part-ordered">
+              <div class="card-header">
+                <label for="parts_ordered" class="form-check-label">
+                  <input type="checkbox" [ngModel]="(ticket | async)?.parts_ordered" (ngModelChange)="ticket.parts_ordered=$event" name="parts_ordered" id="parts_ordered" (click)="togglePartsOrderedPanel()" [attr.disabled]="!editMode ? '' : null"> Parts Ordered
+                </label>
+              </div>
+              <div [ngClass]="(partsOrder) ? 'collapse show' : 'collapse'">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="small text-secondary m-0" for="">Ordered by</label>
+                    <select id="parts_ordered_by" name="parts_ordered_by" class="custom-select form-control" [ngModel]="(ticket | async)" [compareWith]="comparePoTech" (ngModelChange)="onPartsOrderedByChange($event)" [attr.disabled]="!editMode ? '' : null">
+                      <option *ngFor="let tech of techs | async | techPoSort" [ngValue]="tech.payload"> {{tech.payload.val().name}} </option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="small text-secondary m-0" for="parts_vendor">Parts Vendor</label>
+                    <input [ngModel]="(ticket | async)?.parts_vendor" (ngModelChange)="ticket.parts_vendor=$event" name="parts_vendor" id="parts_vendor" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.readonly]="!editMode ? '' : null" [attr.placeholder]="editMode ? 'Parts Vendor Name' : null">
+                  </div>
+                  <div class="form-group">
+                    <label class="small text-secondary m-0" for="">Estimated Arrival</label>
+                    <div class="input-group">
+                      <input [ngModel]="(ticket | async)?.estPartArrDate" (ngModelChange)="ticket.estPartArrDate=$event" name="estPartArrDate" id="estPartArrDate" bsDatepicker #eaDate="bsDatepicker" [bsConfig]="bsConfig" [ngClass]="editMode ? 'form-control' : 'form-control-plaintext'" [attr.disabled]="!editMode ? '' : null">
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary py-1" *ngIf="editMode" (click)="eaDate.show()"><i class="material-icons">date_range</i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row py-3">
+          <div class="col-md-6">
+            <div class="card bg-light mb-3">
+              <div class="card-header">Files</div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li *ngFor="let attachment of attachedFiles | async"><a href="{{attachment.url}}" target="_blank">{{attachment.name}}</a></li>
+                </ul>
+                <p *ngIf="(attachedFiles | async)?.length == 0">
+                  <em>No Files are currently attached to this ticket</em>
+                </p>
+                <hr>
+                <h6>Upload</h6>
+                <upload-form [parentKey]="(ticket | async)?.id" (fileUploadData)="addUploadFile($event)"></upload-form>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="row mb-3">
+              <div class="col-6">
+                <button class="btn btn-block btn-lg btn-secondary" (click)="toggleEditMode()" *ngIf="editMode">Cancel</button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-block btn-lg btn-primary" (click)="toggleEditMode()" *ngIf="!editMode">Edit Ticket</button>
+                <button class="btn btn-block btn-lg btn-success" (click)="updateTicket(f)" *ngIf="editMode">Save Changes </button>
+              </div>
+            </div>
+            <div class="row my-3" *ngIf="editMode && (currentUser | async)?.isAdmin">
+              <div class="col-6">&nbsp;</div>
+              <div class="col-6">
+                <button class="btn btn-danger btn-lg btn-block" (click)="confirmDelete(template)">Delete Ticket</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="container mb-5" *ngIf="(authService.user | async)?.uid">
+  <div class="row mb-3">
+    <div class="col-7">
+      <h3>Service Notes</h3>
+    </div>
+    <div class="col-5">
+      <button class="btn btn-sm btn-outline-primary float-right" (click)="toggleActiveServiceNote(true)">Add Note <i class="material-icons">add</i></button>
+    </div>
+  </div>
+  <app-new-service-note [ticketID]="(ticket | async)?.id" [hidden]="!addServiceNoteActive" (addServiceNoteActive)="toggleActiveServiceNote($event)"></app-new-service-note>
+  <app-service-note [ticketID]="(ticket | async)?.id"></app-service-note>
+</div>
+<ng-template #template>
+  <div class="modal-header bg-danger">
+    <h4 class="modal-title pull-left text-white">Delete Ticket ID: {{ id }}</h4>
+    <button type="button" class="close pull-right text-white" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true"><i class="material-icons">close</i></span>
+    </button>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to delete this Ticket?
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="modalRef.hide()">Nope</button>
+    <button class="btn btn-danger" (click)="deleteTicket()">Delete</button>
+  </div>
+</ng-template>

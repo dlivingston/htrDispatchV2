@@ -178,9 +178,9 @@
                   <a (click)="toggleAssignedTechFilterOptions(tech.name)" class="dropdown-item" *ngFor="let tech of techs | async | techListAlphaSort">
                     <div class="row">
                       <div class="col-1">
-                        <i class="material-icons" [class.d-none]="assignedTechFilterOptions.indexOf(tech.name) === -1">check</i>
+                        <i class="material-icons" [class.d-none]="assignedTechFilterOptions.indexOf(tech.payload.val().name) === -1">check</i>
                       </div>
-                      <div class="col px-2">{{tech.name}}</div>
+                      <div class="col px-2">{{tech.payload.val().name}}</div>
                     </div>
                   </a>
                 </div>
@@ -230,6 +230,7 @@
               <th>Status </th>
               <th class="clickable" (click)="(selectedOption.value !== 'sched_srvc_date') ? orderBy(orderByOptions[5]) : toggleAscending()">Sched. Srvc <span *ngIf="(selectedOption.value === 'sched_srvc_date')" [ngClass]="sortAscending ? 'ascend' : 'descend'"><i class="material-icons">arrow_drop_down</i></span></th>
               <th>Created </th>
+              <th><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></th>
             </tr>
           </thead>
           <tbody *ngIf="(selectedOption.value === 'id')">
@@ -239,7 +240,7 @@
 									| statusFilter:statusFilterOptions 
 									| priorityFilter:priorityFilterOptions 
 									| assignedTechFilter:assignedTechFilterOptions
-									| ticketIdSort:sortAscending" [routerLink]="['/ticket-detail', ticket.id]">
+                  | ticketIdSort:sortAscending" [routerLink]="['/ticket-detail', ticket.id]">
               <td class="ticket-id-col">{{ticket.id}}</td>
               <td class="client-name-col">{{ticket.client_name}}</td>
               <td class="client-loc-col">{{ticket.client_loc_id ? ticket.client_loc_id : '--' }}</td>
@@ -251,6 +252,7 @@
               <td class="status-col"><span class="badge status" [class.badge-assigned]="ticket.status === 'Assigned'" [class.badge-invoiced]="ticket.status === 'Invoiced'" [class.badge-unassigned]="ticket.status === 'Unassigned'" [class.badge-hold]="ticket.status === 'Hold'" [class.badge-closed]="ticket.status === 'Closed'">{{ticket.status}}</span></td>
               <td class="srvc-date-col">{{ticket.sched_srvc_date ? (ticket.sched_srvc_date | date:'MM/dd/y') : '--/--/----'}}</td>
               <td class="updated-col">{{ticket.date_created ? (ticket.date_created | date:'MM/dd/y') : '--/--/----'}}</td>
+              <td><span *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span></td>
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'client_name')">
@@ -272,6 +274,7 @@
               <td class="status-col"><span class="badge status" [class.badge-assigned]="ticket.status === 'Assigned'" [class.badge-invoiced]="ticket.status === 'Invoiced'" [class.badge-unassigned]="ticket.status === 'Unassigned'" [class.badge-hold]="ticket.status === 'Hold'" [class.badge-closed]="ticket.status === 'Closed'">{{ticket.status}}</span></td>
               <td class="srvc-date-col">{{ticket.sched_srvc_date ? (ticket.sched_srvc_date | date:'MM/dd/y') : '--/--/----'}}</td>
               <td class="updated-col">{{ticket.date_created ? (ticket.date_created | date:'MM/dd/y') : '--/--/----'}}</td>
+              <td><span *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span></td>
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'client_loc_id')">
@@ -293,6 +296,7 @@
               <td class="status-col"><span class="badge status" [class.badge-assigned]="ticket.status === 'Assigned'" [class.badge-invoiced]="ticket.status === 'Invoiced'" [class.badge-unassigned]="ticket.status === 'Unassigned'" [class.badge-hold]="ticket.status === 'Hold'" [class.badge-closed]="ticket.status === 'Closed'">{{ticket.status}}</span></td>
               <td class="srvc-date-col">{{ticket.sched_srvc_date ? (ticket.sched_srvc_date | date:'MM/dd/y') : '--/--/----'}}</td>
               <td class="updated-col">{{ticket.date_created ? (ticket.date_created | date:'MM/dd/y') : '--/--/----'}}</td>
+              <td><span *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span></td>
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'assigned_tech')">
@@ -314,6 +318,7 @@
               <td class="status-col"><span class="badge status" [class.badge-assigned]="ticket.status === 'Assigned'" [class.badge-invoiced]="ticket.status === 'Invoiced'" [class.badge-unassigned]="ticket.status === 'Unassigned'" [class.badge-hold]="ticket.status === 'Hold'" [class.badge-closed]="ticket.status === 'Closed'">{{ticket.status}}</span></td>
               <td class="srvc-date-col">{{ticket.sched_srvc_date ? (ticket.sched_srvc_date | date:'MM/dd/y') : '--/--/----'}}</td>
               <td class="updated-col">{{ticket.date_created ? (ticket.date_created | date:'MM/dd/y') : '--/--/----'}}</td>
+              <td><span *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span></td>
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'priority')">
@@ -335,6 +340,7 @@
               <td class="status-col"><span class="badge status" [class.badge-assigned]="ticket.status === 'Assigned'" [class.badge-invoiced]="ticket.status === 'Invoiced'" [class.badge-unassigned]="ticket.status === 'Unassigned'" [class.badge-hold]="ticket.status === 'Hold'" [class.badge-closed]="ticket.status === 'Closed'">{{ticket.status}}</span></td>
               <td class="srvc-date-col">{{ticket.sched_srvc_date ? (ticket.sched_srvc_date | date:'MM/dd/y') : '--/--/----'}}</td>
               <td class="updated-col">{{ticket.date_created ? (ticket.date_created | date:'MM/dd/y') : '--/--/----'}}</td>
+              <td><span *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span></td>
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'sched_srvc_date')">
@@ -356,6 +362,7 @@
               <td class="status-col"><span class="badge status" [class.badge-assigned]="ticket.status === 'Assigned'" [class.badge-invoiced]="ticket.status === 'Invoiced'" [class.badge-unassigned]="ticket.status === 'Unassigned'" [class.badge-hold]="ticket.status === 'Hold'" [class.badge-closed]="ticket.status === 'Closed'">{{ticket.status}}</span></td>
               <td class="srvc-date-col">{{ticket.sched_srvc_date ? (ticket.sched_srvc_date | date:'MM/dd/y') : '--/--/----'}}</td>
               <td class="updated-col">{{ticket.date_created ? (ticket.date_created | date:'MM/dd/y') : '--/--/----'}}</td>
+              <td><span *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span></td>
             </tr>
           </tbody>
         </table>
@@ -386,7 +393,9 @@
 											| assignedTechFilter:assignedTechFilterOptions 
 											| ticketIdSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
-          Ticket ID:&nbsp;{{ticket.id}} <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
+          Ticket ID:&nbsp;{{ticket.id}} 
+          <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
+          <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
         </div>
         <div class="card-body py-3">
           <div class="row">
@@ -432,7 +441,9 @@
 											| assignedTechFilter:assignedTechFilterOptions 
 											| clientSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
-          Ticket ID:&nbsp;{{ticket.id}} <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
+          Ticket ID:&nbsp;{{ticket.id}} 
+          <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
+          <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
         </div>
         <div class="card-body py-3">
           <div class="row">
@@ -478,7 +489,9 @@
 											| assignedTechFilter:assignedTechFilterOptions 
 											| locationSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
-          Ticket ID:&nbsp;{{ticket.id}} <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
+          Ticket ID:&nbsp;{{ticket.id}} 
+          <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
+          <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
         </div>
         <div class="card-body py-3">
           <div class="row">
@@ -524,7 +537,9 @@
 											| assignedTechFilter:assignedTechFilterOptions 
 											| techSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
-          Ticket ID:&nbsp;{{ticket.id}} <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
+          Ticket ID:&nbsp;{{ticket.id}} 
+          <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
+          <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
         </div>
         <div class="card-body py-3">
           <div class="row">
@@ -570,7 +585,9 @@
 											| assignedTechFilter:assignedTechFilterOptions 
 											| prioritySort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
-          Ticket ID:&nbsp;{{ticket.id}} <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
+          Ticket ID:&nbsp;{{ticket.id}} 
+          <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
+          <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
         </div>
         <div class="card-body py-3">
           <div class="row">
@@ -616,7 +633,9 @@
 											| assignedTechFilter:assignedTechFilterOptions 
 											| scheduleSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
-          Ticket ID:&nbsp;{{ticket.id}} <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
+          Ticket ID:&nbsp;{{ticket.id}} 
+          <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
+          <span class="details-link float-right"><i class="material-icons">chevron_right</i></span>
         </div>
         <div class="card-body py-3">
           <div class="row">

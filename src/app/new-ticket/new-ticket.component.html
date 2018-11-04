@@ -1,3 +1,262 @@
-<p>
-  new-ticket works!
-</p>
+<app-loading-spinner *ngIf="!(authService.user | async)?.uid"></app-loading-spinner>
+
+<div class="container my-3" *ngIf="(authService.user | async)?.uid">
+  <div class="row">
+    <div class="px-2 px-md-3">
+      <button class="btn back btn-alt" [routerLink]="['/ticket-list']"><i class="material-icons">chevron_left</i> Back to Dispatch List</button>
+    </div>
+  </div>
+  <div class="card row my-4">
+    <h5 class="card-header bg-primary text-white px-2 px-md-3">New Ticket</h5>
+    <div class="card-body p-2 p-md-3">
+      <form #f="ngForm" [ngClass]="formNotValid ? 'was-validated' : ''">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="small text-secondary m-0">Client Name</label>
+              <input [(ngModel)]="client_name" name="client_name" class="form-control" placeholder="Client Name" required />
+              <div class="invalid-tooltip">
+                Please enter a Client Name.
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="small text-secondary m-0">Client Location / ID</label>
+              <input [(ngModel)]="client_loc_id" name="client_loc_id" class="form-control" placeholder="Client Location" />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="row mt-4">
+              <div class="col-5 pr-1">
+                <div class="input-group priority mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Priority</button>
+                    <div class="dropdown-menu">
+                      <a (click)="setTicketPriority('1')" class="dropdown-item"><span class="badge badge-priority1">1</span> - Urgent</a>
+                      <a (click)="setTicketPriority('2')" class="dropdown-item"><span class="badge badge-priority2">2</span> - High</a>
+                      <a (click)="setTicketPriority('3')" class="dropdown-item"><span class="badge badge-priority3">3</span> - Normal</a>
+                      <a (click)="setTicketPriority('4')" class="dropdown-item"><span class="badge badge-priority4">4</span> - Low</a>
+                    </div>
+                  </div>
+                  <div class="form-control badge d-flex justify-content-center align-items-center" [ngClass]="{'badge-priority1' : (ticketPriority === '1'), 'badge-priority2' : (ticketPriority === '2'), 'badge-priority3' : (ticketPriority === '3'), 'badge-priority4' : (ticketPriority === '4')}">
+                    {{ticketPriority}}
+                  </div>
+                </div>
+              </div>
+              <div class="col-7 pl-1">
+                <div class="input-group status mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Status</button>
+                    <div class="dropdown-menu">
+                      <a (click)="setTicketStatus('Assigned')" class="dropdown-item"><span class="badge badge-assigned">Assigned</span></a>
+                      <a (click)="setTicketStatus('Unassigned')" class="dropdown-item"><span class="badge badge-unassigned">Unassigned</span></a>
+                      <a (click)="setTicketStatus('Invoiced')" class="dropdown-item"><span class="badge badge-invoiced">Invoiced</span></a>
+                      <a (click)="setTicketStatus('Closed')" class="dropdown-item"><span class="badge badge-closed">Closed</span></a>
+                      <a (click)="setTicketStatus('Hold')" class="dropdown-item"><span class="badge badge-hold">Hold</span></a>
+                    </div>
+                  </div>
+                  <div class="form-control badge d-flex justify-content-center align-items-center" [ngClass]="{'badge-assigned' : (ticketStatus === 'Assigned'), 'badge-unassigned' : (ticketStatus === 'Unassigned'), 'badge-closed' : (ticketStatus === 'Closed'), 'badge-hold' : (ticketStatus === 'Hold')}">
+                    {{ticketStatus}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 pr-1">
+                <div class="form-group">
+                  <label class="small text-secondary m-0" for="assigned_tech">Assigned Technician</label>
+                  <select id="assigned_tech" name="assigned_tech" [(ngModel)]="assigned_tech" (ngModelChange)="onAssignedTechChange($event)" class="custom-select form-control" required>
+                    <option *ngFor="let tech of techs | async | techListAlphaSort" [ngValue]="tech.payload"> {{tech.payload.val().name}} </option>
+                  </select>
+                  <div class="invalid-tooltip">
+                    Please Assign a Technician.
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group">
+                  <label class="small text-secondary m-0" for="sched_srvc_date">Scheduled Service Date</label>
+                  <div class="input-group date">
+                    <input [(ngModel)]="sched_srvc_date" name="sched_srvc_date" id="sched_srvc_date" bsDatepicker #dp="bsDatepicker" class="form-control" [bsConfig]="bsConfig">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary py-1" for="sched_srvc_date" (click)="dp.show()" type="button"><i class="material-icons">date_range</i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="small text-secondary m-0">Address</label>
+              <div class="card p-3 mb-3">
+                <input [(ngModel)]="address_ln1" name="address_ln1" class="mb-3 form-control" placeholder="Address Line 1">
+                <input [(ngModel)]="address_ln2" name="address_ln2" class="mb-3 form-control" placeholder="Address Line 2">
+                <input [(ngModel)]="address_city" name="address_city" class="mb-3 form-control" placeholder="City">
+                <div class="row">
+                  <div class="col">
+                    <select [(ngModel)]="address_state" name="address_state" id="address_state" class="custom-select form-control">
+                      <option value="AL">AL</option>
+                      <option value="AK">AK</option>
+                      <option value="AR">AR</option>
+                      <option value="AZ">AZ</option>
+                      <option value="CA">CA</option>
+                      <option value="CO">CO</option>
+                      <option value="CT">CT</option>
+                      <option value="DC">DC</option>
+                      <option value="DE">DE</option>
+                      <option value="FL">FL</option>
+                      <option value="GA">GA</option>
+                      <option value="HI">HI</option>
+                      <option value="IA">IA</option>
+                      <option value="ID">ID</option>
+                      <option value="IL">IL</option>
+                      <option value="IN">IN</option>
+                      <option value="KS">KS</option>
+                      <option value="KY">KY</option>
+                      <option value="LA">LA</option>
+                      <option value="MA">MA</option>
+                      <option value="MD">MD</option>
+                      <option value="ME">ME</option>
+                      <option value="MI">MI</option>
+                      <option value="MN" selected>MN</option>
+                      <option value="MO">MO</option>
+                      <option value="MS">MS</option>
+                      <option value="MT">MT</option>
+                      <option value="NC">NC</option>
+                      <option value="NE">NE</option>
+                      <option value="NH">NH</option>
+                      <option value="NJ">NJ</option>
+                      <option value="NM">NM</option>
+                      <option value="NV">NV</option>
+                      <option value="NY">NY</option>
+                      <option value="ND">ND</option>
+                      <option value="OH">OH</option>
+                      <option value="OK">OK</option>
+                      <option value="OR">OR</option>
+                      <option value="PA">PA</option>
+                      <option value="RI">RI</option>
+                      <option value="SC">SC</option>
+                      <option value="SD">SD</option>
+                      <option value="TN">TN</option>
+                      <option value="TX">TX</option>
+                      <option value="UT">UT</option>
+                      <option value="VT">VT</option>
+                      <option value="VA">VA</option>
+                      <option value="WA">WA</option>
+                      <option value="WI">WI</option>
+                      <option value="WV">WV</option>
+                      <option value="WY">WY</option>
+                    </select>
+                  </div>
+                  <div class="col">
+                    <input [(ngModel)]="address_zip" name="address_zip" class="form-control" placeholder="Zip Code">
+                  </div>
+                </div>
+              </div>
+              <div class="card mb-3">
+                <div class="card-header">
+                  <nav class="nav nav-tabs card-header-tabs" id="contactTabs" role="tablist">
+                    <a href="#primaryContactPanel" id="primaryContactTab" class="nav-item nav-link active" data-toggle="tab" role="tab" aria-controls="primaryContactPanel">Primary</a>
+                    <a href="#secondaryContactPanel" id="secondaryContactTab" class="nav-item nav-link" data-toggle="tab" role="tab" aria-controls="secondaryContactPanel">Secondary</a>
+                  </nav>
+                </div>
+                <div class="card-body tab-content" id="contactPanels">
+                  <div class="tab-pane fade show active" id="primaryContactPanel" role="tabpanel" aria-labelledby="primaryContactTab">
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Contact Name</label>
+                      <input [(ngModel)]="primary_contact_name" name="primary_contact_name" class="form-control" placeholder="Contact Name">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Phone</label>
+                      <input [(ngModel)]="primary_contact_phone" name="primary_contact_phone" class="form-control" placeholder="Phone Number">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Email</label>
+                      <input [(ngModel)]="primary_contact_email" name="primary_contact_email" type="email" class="form-control" placeholder="email@address.com">
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="secondaryContactPanel" role="tabpanel" aria-labelledby="secondaryContactTab">
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Contact Name</label>
+                      <input [(ngModel)]="alt_contact_name" name="alt_contact_name" type="text" class="form-control" placeholder="Secondary Contact Name">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Phone</label>
+                      <input [(ngModel)]="alt_contact_phone" name="alt_contact_phone" type="text" class="form-control" placeholder="Phone Number">
+                    </div>
+                    <div class="form-group">
+                      <label class="small text-secondary m-0" for="">Email</label>
+                      <input [(ngModel)]="alt_contact_email" name="alt_contact_email" type="email" class="form-control" placeholder="email@address.com">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="short_desc" class="small text-secondary m-0">Issue</label>
+              <input [(ngModel)]="short_desc" name="short_desc" id="short_desc" type="text" class="form-control" placeholder="Short Issue Description (50 character max)">
+            </div>
+            <div class="form-group">
+              <label class="small text-secondary m-0" for="desc_notes">Full Description &amp; Notes</label>
+              <textarea [(ngModel)]="desc_notes" name="desc_notes" id="desc_notes" cols="30" rows="7" class="form-control"></textarea>
+            </div>
+            <div class="form-check pl-0 mb-3 d-flex align-items-center">
+              <input type="checkbox" [(ngModel)]="callback" name="callback" id="callback">
+              <label for="callback" class="form-check-label ml-1">
+                 Call Back
+              </label>
+            </div>
+            <div class="form-check pl-0 mb-3 d-flex align-items-center">
+              <input type="checkbox" [(ngModel)]="discount_partial" name="discount_partial" id="discount_partial">
+              <label for="discount_partial" class="form-check-label ml-1">
+                Discount or partial billing
+              </label>
+            </div>
+            <div class="card mt- bg-light part-ordered">
+              <div class="card-header">
+                <label for="parts_ordered" class="form-check-label">
+                  <input type="checkbox" [(ngModel)]="parts_ordered" name="parts_ordered" id="parts_ordered" (click)="togglePartsOrderedPanel()"> Parts Ordered
+                </label>
+              </div>
+              <div [ngClass]="(partsOrder) ? 'collapse show' : 'collapse'">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="small text-secondary m-0" for="parts_ordered_by">Ordered by</label>
+                    <select id="parts_ordered_by" name="parts_ordered_by" [(ngModel)]="parts_ordered_by" (ngModelChange)="onPartsOrderedByChange($event)" class="custom-select form-control">
+                      <option *ngFor="let tech of techs | async | techPoSort" [ngValue]="tech.payload"> {{tech.payload.val().name}} </option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="small text-secondary m-0" for="parts_vendor">Parts Vendor</label>
+                    <input [(ngModel)]="parts_vendor" name="parts_vendor" id="parts_vendor" class="form-control" placeholder="Parts Vendor Name">
+                  </div>
+                  <div class="form-group">
+                    <label class="small text-secondary m-0" for="estPartArrDate">Estimated Arrival</label>
+                    <div class="input-group">
+                      <input [(ngModel)]="estPartArrDate" name="estPartArrDate" id="estPartArrDate" bsDatepicker #eaDate="bsDatepicker" class="form-control" [bsConfig]="bsConfig">
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary py-1" (click)="eaDate.show()"><i class="material-icons">date_range</i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-5">
+              <div class="col">
+                <button class="btn btn-block btn-lg btn-secondary" [routerLink]="['/ticket-list']">Cancel</button>
+              </div>
+              <div class="col">
+                <button class="btn btn-block btn-lg btn-primary" (click)="createTicket(f)">Create Ticket</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
