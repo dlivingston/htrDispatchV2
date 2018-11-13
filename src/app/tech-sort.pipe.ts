@@ -19,11 +19,10 @@ export class TechSortPipe implements PipeTransform {
       return comparison;
     }
     if (tickets) {
-      let returnArray = tickets.sort(compare);
-      if ((sortDirection == true && returnArray[0].assigned_tech_name < returnArray[returnArray.length - 1].assigned_tech_name) || (sortDirection == false && returnArray[0].assigned_tech_name > returnArray[returnArray.length - 1].assigned_tech_name)) {
-        return returnArray;
+      if (sortDirection == true) {
+        return tickets.sort(compare);
       } else {
-        return returnArray.reverse();
+        return tickets.sort(compare).reverse();
       }
     }
   }

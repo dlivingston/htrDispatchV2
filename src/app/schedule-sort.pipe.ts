@@ -19,11 +19,10 @@ export class ScheduleSortPipe implements PipeTransform {
       return comparison;
     }
     if (tickets) {
-      let returnArray = tickets.sort(compare);
-      if ((sortDirection == true && returnArray[0].sched_srvc_date < returnArray[returnArray.length - 1].sched_srvc_date) || (sortDirection == false && returnArray[0].sched_srvc_date > returnArray[returnArray.length - 1].sched_srvc_date)) {
-        return returnArray;
+      if (sortDirection == true) {
+        return tickets.sort(compare);
       } else {
-        return returnArray.reverse();
+        return tickets.sort(compare).reverse();
       }
     }
   }

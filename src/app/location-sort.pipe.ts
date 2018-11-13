@@ -19,11 +19,10 @@ export class LocationSortPipe implements PipeTransform {
       return comparison;
     }
     if (tickets) {
-      let returnArray = tickets.sort(compare);
-      if ((sortDirection == true && returnArray[0].client_loc_id < returnArray[returnArray.length - 1].client_loc_id) || (sortDirection == false && returnArray[0].client_loc_id > returnArray[returnArray.length - 1].client_loc_id)) {
-        return returnArray;
+      if (sortDirection == true) {
+        return tickets.sort(compare);
       } else {
-        return returnArray.reverse();
+        return tickets.sort(compare).reverse();
       }
     }
   }

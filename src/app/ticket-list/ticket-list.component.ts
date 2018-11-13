@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 import { AngularFireDatabase, AngularFireObject, AngularFireList } from 'angularfire2/database';
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { Subject, Observable } from 'rxjs';
+import * as moment from 'moment';
+import * as _ from "lodash";
 
 @Component({
   selector: 'app-ticket-list',
@@ -12,7 +15,11 @@ import { Subject, Observable } from 'rxjs';
 export class TicketListComponent implements OnInit {
   tickets: Observable<any[]>;
   techs: Observable<any[]>;
+  ticketArray: {}[];
+  emptyArrayMessage: string;
   currentUser: AngularFireObject<any>;
+  searchString: string;
+  searchBySelect: string;
   currentUserId: string;
   currentUserName: string;
   currentUserIsTech: boolean;
@@ -22,8 +29,9 @@ export class TicketListComponent implements OnInit {
   sortAscending: boolean;
   viewFilter: boolean;
   viewOptions: boolean;
-  fullListView: boolean;
+  
   listView: string;
+  quickView: string;
   selectedOption: any;
   newestTicket: Observable<any[]>;
   newestTicketId: string;
@@ -46,6 +54,25 @@ export class TicketListComponent implements OnInit {
   priorityFilterOptions: any[];
   assignedTechFilterOptions: any[];
   listLimit: number;
+  colorTheme = 'theme-default';
+  bsConfig: Partial<BsDatepickerConfig>;
+  today: moment.Moment;
+  now: Date;
+  dateRange: Date[];
+  customRangeSelect: Date[];
+  dateViewOptions: any[] = [
+    { value: 'oneMonth', label: 'One Month' },
+    { value: 'threeMonths', label: '3 Months' },
+    { value: 'customRange', label: 'Custom Range' }
+  ]
+  searchSelectOptions: any[] = [
+    { value: 'id', label: 'ID' },
+    { value: 'client_name', label: 'Client Name' },
+    { value: 'client_loc_id', label: 'Location' },
+    { value: 'assigned_tech_name', label: 'Assigned Tech' }
+  ]
+  selectedDateView: { value: string, label: string };
+  selectedSearchOption: { value: string, label: string };
 
   constructor(public authService: AuthService, public af: AngularFireDatabase, private router: Router) { 
     this.idSubject = new Subject();
@@ -59,8 +86,10 @@ export class TicketListComponent implements OnInit {
     this.prevPageStart = '';
     this.prevBtnActive = false;
     this.nextBtnActive = true;
-    this.fullListView = false;
+    
     this.listLimit = 50;
+    this.searchBySelect = 'client_name';
+    this.emptyArrayMessage = 'No tickets matched your search or selected settings.';
     this.authService.user.subscribe(auth_user => {
       if (auth_user) {
         this.currentUserId = auth_user.uid;
@@ -74,19 +103,6 @@ export class TicketListComponent implements OnInit {
           }
           this.currentUser.snapshotChanges().subscribe(current_user => {
             this.currentUserName = current_user.payload.val().name;
-
-            if (current_user.payload.val().selectedListView) {
-              this.listView = current_user.payload.val().selectedListView;
-              this.toggleListView(current_user.payload.val().selectedListView);
-            } else {
-              if (this.currentUserIsTech) {
-                // this.listView = 'assigned';
-                this.toggleListView('assigned');
-              } else {
-                // this.listView = 'paged';
-                this.toggleListView('paged');
-              }
-            }
             if (current_user.payload.val().statusFilterOptions) {
               this.statusFilterOptions = current_user.payload.val().statusFilterOptions;
             } else {
@@ -107,11 +123,56 @@ export class TicketListComponent implements OnInit {
             } else {
               this.selectedOption = this.orderByOptions[0];
             }
+            if (current_user.payload.val().selectedSearchOption) {
+              this.selectedSearchOption = current_user.payload.val().selectedSearchOption;
+            } else {
+              this.selectedSearchOption = this.searchSelectOptions[1];
+            }
             if (current_user.payload.val().sortAscending) {
               this.sortAscending = current_user.payload.val().sortAscending;
             } else {
               this.sortAscending = false;
             }
+            if (current_user.payload.val().selectedDateView) {
+              this.selectedDateView = current_user.payload.val().selectedDateView;
+              if (this.selectedDateView.value === 'oneMonth') {
+                this.dateRange = [moment(this.today).subtract(1, 'month').toDate(), this.now];
+              }
+              if (this.selectedDateView.value === 'threeMonths') {
+                this.dateRange = [moment(this.today).subtract(3, 'month').toDate(), this.now];
+              }
+              if (current_user.payload.val().customRangeSelect){
+                this.customRangeSelect = [moment(current_user.payload.val().customRangeSelect[0]).toDate(), moment(current_user.payload.val().customRangeSelect[1]).toDate()];
+                if (this.selectedDateView.value === 'customRange') {
+                  this.dateRange = [this.customRangeSelect[0], this.customRangeSelect[1]];
+                }
+              }
+            } else {
+              this.selectedDateView = this.dateViewOptions[0];
+              this.dateRange = [moment(this.today).subtract(1, 'month').toDate(), this.now];
+              this.customRangeSelect = [moment(this.today).subtract(3, 'month').toDate(), this.now];
+            }
+            if ( current_user.payload.val().selectedQuickView ) {
+              this.quickView = current_user.payload.val().selectedQuickView;
+            } else {
+              if (this.currentUserIsTech) {
+                this.quickView = 'assigned';
+              } else {
+                this.quickView = 'active';
+              }
+            }
+            if (current_user.payload.val().searchString) {
+              this.searchString = current_user.payload.val().searchString;
+            } else {
+              this.searchString = '';
+            }
+            if (current_user.payload.val().selectedListView === 'quickView' || current_user.payload.val().selectedListView === 'advanced') {
+              this.toggleListView(current_user.payload.val().selectedListView);
+            } else {
+              this.toggleListView('quickView');
+            }
+            
+            //this.setTicketList();
           });
         });
 
@@ -140,6 +201,10 @@ export class TicketListComponent implements OnInit {
     this.techs = af.list('/techs').snapshotChanges();
     this.viewFilter = false;
     this.viewOptions = false;
+    this.bsConfig = Object.assign({}, { containerClass: this.colorTheme });
+    this.today = moment();
+    this.now = new Date();
+    this.now.setDate(this.now.getDate());
   }
 
   orderBy(option: { value: string, label: string }) {
@@ -163,20 +228,46 @@ export class TicketListComponent implements OnInit {
     }
   }
 
+  setDateView(option) {
+    this.selectedDateView = option;
+    if (this.selectedDateView.value === 'oneMonth') {
+      this.dateRange = [moment(this.today).subtract(1, 'month').toDate(), this.now];
+      this.currentUser.update({ selectedDateView: this.selectedDateView});
+      this.setTicketList();
+    }
+    if (this.selectedDateView.value === 'threeMonths') {
+      this.dateRange = [moment(this.today).subtract(3, 'month').toDate(), this.now];
+      this.currentUser.update({ selectedDateView: this.selectedDateView });
+      this.setTicketList();
+    } 
+    if (this.selectedDateView.value === 'customRange') {
+      this.dateRange = [this.customRangeSelect[0], this.customRangeSelect[1]];
+      this.currentUser.update({ selectedDateView: this.selectedDateView });
+      this.setTicketList();
+    }
+  }
+
+  setSearchOption(option) {
+    this.selectedSearchOption = option;
+    this.currentUser.update({ selectedSearchOption: this.selectedSearchOption });
+  }
+
   toggleListView(listView) {
     this.listView = listView;
-    if (listView === 'assigned') {
-      this.currentUser.update({ selectedListView: this.listView });
-      this.tickets = this.af.list('/tickets', ref => ref.orderByChild('assigned_tech').equalTo(this.currentUserId)).valueChanges();
+    this.currentUser.update({ selectedListView: this.listView })
+    if(this.listView === "quickView") {
+      this.setTicketList();
     }
-    if (listView === 'paged') {
-      this.currentUser.update({ selectedListView: this.listView });
-      this.tickets = this.af.list('/tickets', ref => ref.orderByChild('id').limitToLast(this.listLimit)).valueChanges();
+    if (this.listView === "advanced") {
+      this.getListBySearchVal();
     }
-    if (listView === 'full') {
-      this.currentUser.update({ selectedListView: this.listView });
-      this.tickets = this.af.list('/tickets', ref => ref.orderByChild('id')).valueChanges();
-    }
+    
+  }
+
+  toggleQuickView(view) {
+    this.quickView = view;
+    this.currentUser.update({ selectedQuickView: this.quickView });
+
   }
 
   toggleAscending() {
@@ -296,6 +387,72 @@ export class TicketListComponent implements OnInit {
   }
   parseTicketNum(id: string) {
     return parseInt(id.slice(4).replace(/-/g, ''), 10);
+  }
+  
+  onSearchSelectChange(value) {
+    this.searchBySelect = value;
+  }
+
+  getListBySearchVal() {
+    this.currentUser.update({ searchString: this.searchString });
+    if(this.searchString !== '') {
+      const searchList = this.af.list('/tickets', ref => ref.orderByChild(this.selectedSearchOption.value).startAt(this.searchString).endAt(this.searchString + "\uf8ff")).valueChanges();
+      searchList.subscribe(tickets => {
+        this.ticketArray = tickets;
+      });
+    } else {
+      this.ticketArray = [];
+    }
+    
+  }
+
+  getListInDateRange() {
+    if(this.customRangeSelect.length > 0){
+      let start = moment(this.customRangeSelect[0]).startOf('day').toDate();
+      let end = moment(this.customRangeSelect[1]).endOf('day').toDate();
+      this.dateRange = [start, end];
+      this.currentUser.update({ customRangeSelect: this.dateRange});
+      this.setTicketList();
+    }
+  }
+
+  setTicketList() {
+    if (this.quickView === 'assigned') {
+      const dateRangeRef = this.af.list('/tickets', ref => ref.orderByChild('date_created').startAt(this.dateRange[0].toISOString()).endAt(this.dateRange[1].toISOString())).valueChanges();
+      dateRangeRef.subscribe(list => {
+        this.ticketArray = _.filter(list, { 'assigned_tech_name': this.currentUserName });
+      });
+    }
+    if (this.quickView === 'active') {
+      const dateRangeRef = this.af.list('/tickets', ref => ref.orderByChild('date_created').startAt(this.dateRange[0].toISOString()).endAt(this.dateRange[1].toISOString())).valueChanges();
+      dateRangeRef.subscribe(list => {
+        this.ticketArray = _.filter(list, item => {
+          return item.status === "Assigned" || item.status === "Unassigned" || item.status === "Hold";
+        });
+      });
+    }
+    if (this.quickView === 'inactive') {
+      const dateRangeRef = this.af.list('/tickets', ref => ref.orderByChild('date_created').startAt(this.dateRange[0].toISOString()).endAt(this.dateRange[1].toISOString())).valueChanges();
+      dateRangeRef.subscribe(list => {
+        this.ticketArray = _.filter(list, item => {
+          return item.status === "Closed";
+        });
+      });
+    }
+    if (this.quickView === 'archived') {
+      const dateRangeRef = this.af.list('/tickets', ref => ref.orderByChild('date_created').startAt(this.dateRange[0].toISOString()).endAt(this.dateRange[1].toISOString())).valueChanges();
+      dateRangeRef.subscribe(list => {
+        this.ticketArray = _.filter(list, item => {
+          return item.status === "Invoiced";
+        });
+      });
+    }
+    if (this.quickView === 'full') {
+      const dateRangeRef = this.af.list('/tickets', ref => ref.orderByChild('date_created').startAt(this.dateRange[0].toISOString()).endAt(this.dateRange[1].toISOString())).valueChanges();
+      dateRangeRef.subscribe(list => {
+        this.ticketArray = list;
+      });
+    }
   }
 
   ngOnInit() {

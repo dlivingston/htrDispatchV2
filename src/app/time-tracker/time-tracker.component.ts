@@ -16,6 +16,8 @@ export class TimeTrackerComponent implements OnInit {
   ticketID: string;
   techID: string;
   techName: string;
+  ttActivity: string;
+  overtime: boolean;
   formNotValid: boolean;
   techClockedIn: boolean;
   clockedInMessage: string;

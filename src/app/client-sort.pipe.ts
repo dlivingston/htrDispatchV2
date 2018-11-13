@@ -20,12 +20,10 @@ export class ClientSortPipe implements PipeTransform {
     }
 
     if (tickets) {
-      let returnArray = tickets.sort(compare);
-
-      if ((sortDirection == true && returnArray[0].client_name < returnArray[returnArray.length - 1].client_name) || (sortDirection == false && returnArray[0].client_name > returnArray[returnArray.length - 1].client_name)) {
-        return returnArray;
+      if (sortDirection == true) {
+        return tickets.sort(compare);
       } else {
-        return returnArray.reverse();
+        return tickets.sort(compare).reverse();
       }
     }
   }

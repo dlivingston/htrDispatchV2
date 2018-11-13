@@ -8,31 +8,73 @@
       <button class="btn btn-primary btn-sm float-right" [routerLink]="['/new-ticket']"><span class="d-none d-sm-inline">Create</span> New Ticket <i class="material-icons">add</i></button>
     </div>
   </div>
-  <div class="row">
-    <div class="col-8 col-md-4 mb-2">
-      <p class="fs-sm font-weight-bold mr-2 mb-0">List View: </p>
-      <div class="btn-group" role="group">
-        <button type="button" class="btn btn-primary btn-sm" [ngClass]="(listView === 'assigned') ? 'active' : ''" (click)="toggleListView('assigned')" *ngIf="currentUserIsTech">Assigned</button>
-        <button type="button" class="btn btn-primary btn-sm" [ngClass]="(listView === 'paged') ? 'active' : ''" (click)="toggleListView('paged')">Paged</button>
-        <button type="button" class="btn btn-primary btn-sm" [ngClass]="(listView === 'full') ? 'active' : ''" (click)="toggleListView('full')">Full</button>
+  <div class="row mb-3">
+    <div class="col-12 col-md-6">
+      <div class="btn-group w-100">
+        <button class="btn btn-primary w-50" [ngClass]="(listView === 'quickView') ? 'active' : ''" (click)="toggleListView('quickView')">Quick Views</button>
+        <button class="btn btn-primary w-50" [ngClass]="(listView === 'advanced') ? 'active' : ''" (click)="toggleListView('advanced')">Advanced Search</button>
       </div>
     </div>
-    <div class="col-4 col-md-2 mb-2">
-      <p class="fs-sm font-weight-bold mr-2 mb-0">&nbsp;</p>
-      <div class="dropdown float-right">
-        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Status View
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" (click)="setStatusView('active')">Active</a>
-          <a class="dropdown-item" (click)="setStatusView('inactive')">Inactive</a>
-          <a class="dropdown-item" (click)="setStatusView('archived')">Archived</a>
+  </div>
+  <div *ngIf="(listView === 'quickView')">
+    <div class="row mb-2">
+      <div class="col-12 col-md-6">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-primary btn-sm" [ngClass]="(quickView === 'assigned') ? 'active' : ''" (click)="toggleQuickView('assigned')" *ngIf="currentUserIsTech">Assigned</button>
+          <button type="button" class="btn btn-primary btn-sm" [ngClass]="(quickView === 'active') ? 'active' : ''" (click)="toggleQuickView('active')">Active</button>
+          <button type="button" class="btn btn-primary btn-sm" [ngClass]="(quickView === 'inactive') ? 'active' : ''" (click)="toggleQuickView('inactive')">Inactive</button>
+          <button type="button" class="btn btn-primary btn-sm" [ngClass]="(quickView === 'archived') ? 'active' : ''" (click)="toggleQuickView('archived')">Archived</button>
+          <button type="button" class="btn btn-primary btn-sm" [ngClass]="(quickView === 'full') ? 'active' : ''" (click)="toggleQuickView('full')">Full</button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 col-md-8 col-xl-6 d-flex flex-wrap align-items-center justify-content-between" *ngIf="(selectedDateView)">
+        <div class="d-flex align-items-center mb-2 mr-2">
+          <p class="fs-sm font-weight-bold mr-2 mb-0">Date Range: </p>
+          <button class="btn btn-outline-dark btn-sm dropdown-toggle" type="button" id="dateViewOptionBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{selectedDateView.label}}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dateViewOptionBtn">
+            <a *ngFor="let option of dateViewOptions" class="dropdown-item" (click)="setDateView(option)">{{option.label}}</a>
+          </div>
+        </div>
+        <div class="form-group mb-2 flex-grow-1 px-0" [hidden]="(selectedDateView.value != 'customRange')">
+          <div class="input-group input-group-sm date">
+            <div class="input-group-prepend">
+              <div class="input-group-text" (click)="dp.show()">
+                <i class="material-icons">date_range</i>
+              </div>
+            </div>
+            <input class="form-control form-control-sm" placeholder="Select Dates" [(ngModel)]="customRangeSelect" name="customRangeSelect" id="customRangeSelect" bsDaterangepicker #dp="bsDaterangepicker" [bsConfig]="bsConfig" [maxDate]="now">
+            <div class="input-group-append">
+              <button class="btn btn-sm btn-primary" (click)="getListInDateRange()">Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" *ngIf="(listView === 'advanced')">
+    <div class="col-12 col-md-8 col-xl-6">
+      <div class="input-group">
+        <div class="input-group-prepend" *ngIf="(selectedSearchOption)">
+          <button class="btn btn-primary dropdown-toggle" type="button" id="searchOptionBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{selectedSearchOption.label}}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="searchOptionBtn">
+            <a *ngFor="let option of searchSelectOptions" class="dropdown-item" (click)="setSearchOption(option)">{{option.label}}</a>
+          </div>
+        </div>
+        <input type="text" class="form-control" placeholder="Search Dispatch List" [(ngModel)]="searchString" (keyup.enter)="getListBySearchVal()">
+        <div class="input-group-append">
+          <button class="btn btn-success" (click)="getListBySearchVal()"><i class="material-icons">search</i></button>
         </div>
       </div>
     </div>
   </div>
   <div class="row justify-content-between">
-    <div class="col-xs-12 col-lg-6 py-2">
+    <div class="col-12 col-md-8 col-xl-6 py-2">
       <button class="btn btn-link filters" (click)="toggleFilterPanel()" [ngClass]="(viewFilter) ? 'open' : 'closed'">Filters <i class="material-icons">settings</i></button>
       <div class="card filters">
         <div [ngClass]="(viewFilter) ? 'collapse show' : 'collapse'">
@@ -175,7 +217,7 @@
                       <div class="col px-2">All</div>
                     </div>
                   </a>
-                  <a (click)="toggleAssignedTechFilterOptions(tech.name)" class="dropdown-item" *ngFor="let tech of techs | async | techListAlphaSort">
+                  <a (click)="toggleAssignedTechFilterOptions(tech.payload.val().name)" class="dropdown-item" *ngFor="let tech of techs | async | techListAlphaSort">
                     <div class="row">
                       <div class="col-1">
                         <i class="material-icons" [class.d-none]="assignedTechFilterOptions.indexOf(tech.payload.val().name) === -1">check</i>
@@ -187,18 +229,17 @@
               </div>
               <div class="form-control col text-nowrap text-truncate"><span *ngFor="let option of assignedTechFilterOptions" class="option-item">{{option}}<span class="comma-space">, &nbsp;</span></span></div>
             </div>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Filter by ID or Client Name" [(ngModel)]="searchText">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="material-icons">filter_list</i></span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-4 py-2">
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search by ID or Client Name" [(ngModel)]="searchText">
-        <div class="input-group-append">
-          <span class="input-group-text"><i class="material-icons">search</i></span>
-        </div>
-      </div>
-    </div>
+    
   </div>
   <div class="row d-flex flex-row justify-content-between px-3 mt-2" *ngIf="(listView === 'paged')">
     <button class="btn btn-primary" [class.disabled]="!prevBtnActive" (click)="!prevBtnActive || prevPage()"><i class="material-icons">chevron_left</i> Prev</button>
@@ -234,13 +275,23 @@
             </tr>
           </thead>
           <tbody *ngIf="(selectedOption.value === 'id')">
-            <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-            <tr *ngFor="let ticket of tickets | async  
-									| listSearch:searchText
-									| statusFilter:statusFilterOptions 
+            <tr *ngIf="(!ticketArray)">
+              <app-loading-spinner></app-loading-spinner>
+            </tr>
+            <tr *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+                  | statusFilter:statusFilterOptions
+                  | priorityFilter:priorityFilterOptions
+                  | assignedTechFilter:assignedTechFilterOptions
+                  | ticketIdSort:sortAscending).length === 0)">
+              <td colspan="10"><span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span></td>
+            </tr>
+            <tr *ngFor="let ticket of ticketArray 
+                  | listSearch:searchText
+                  | statusFilter:statusFilterOptions
 									| priorityFilter:priorityFilterOptions 
 									| assignedTechFilter:assignedTechFilterOptions
-                  | ticketIdSort:sortAscending" [routerLink]="['/ticket-detail', ticket.id]">
+                  | ticketIdSort:sortAscending" 
+                  [routerLink]="['/ticket-detail', ticket.id]">
               <td class="ticket-id-col">{{ticket.id}}</td>
               <td class="client-name-col">{{ticket.client_name}}</td>
               <td class="client-loc-col">{{ticket.client_loc_id ? ticket.client_loc_id : '--' }}</td>
@@ -256,8 +307,17 @@
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'client_name')">
-            <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-            <tr *ngFor="let ticket of tickets | async  
+            <tr *ngIf="(!ticketArray)">
+              <app-loading-spinner></app-loading-spinner>
+            </tr>
+            <tr *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+                  | statusFilter:statusFilterOptions
+                  | priorityFilter:priorityFilterOptions
+                  | assignedTechFilter:assignedTechFilterOptions
+                  | clientSort:sortAscending).length === 0)">
+              <td colspan="10"><span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span></td>
+            </tr>
+            <tr *ngFor="let ticket of ticketArray
 									| listSearch:searchText
 									| statusFilter:statusFilterOptions 
 									| priorityFilter:priorityFilterOptions 
@@ -278,8 +338,17 @@
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'client_loc_id')">
-            <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-            <tr *ngFor="let ticket of tickets | async  
+            <tr *ngIf="(!ticketArray)">
+              <app-loading-spinner></app-loading-spinner>
+            </tr>
+            <tr *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+                  | statusFilter:statusFilterOptions
+                  | priorityFilter:priorityFilterOptions
+                  | assignedTechFilter:assignedTechFilterOptions
+                  | locationSort:sortAscending).length === 0)">
+              <td colspan="10"><span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span></td>
+            </tr>
+            <tr *ngFor="let ticket of ticketArray
 									| listSearch:searchText
 									| statusFilter:statusFilterOptions 
 									| priorityFilter:priorityFilterOptions 
@@ -300,8 +369,17 @@
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'assigned_tech')">
-            <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-            <tr *ngFor="let ticket of tickets | async  
+            <tr *ngIf="(!ticketArray)">
+              <app-loading-spinner></app-loading-spinner>
+            </tr>
+            <tr *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+                  | statusFilter:statusFilterOptions
+                  | priorityFilter:priorityFilterOptions
+                  | assignedTechFilter:assignedTechFilterOptions
+                  | techSort:sortAscending).length === 0)">
+              <td colspan="10"><span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span></td>
+            </tr>
+            <tr *ngFor="let ticket of ticketArray
 									| listSearch:searchText
 									| statusFilter:statusFilterOptions 
 									| priorityFilter:priorityFilterOptions 
@@ -322,8 +400,17 @@
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'priority')">
-            <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-            <tr *ngFor="let ticket of tickets | async  
+            <tr *ngIf="(!ticketArray)">
+              <app-loading-spinner></app-loading-spinner>
+            </tr>
+            <tr *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+                  | statusFilter:statusFilterOptions
+                  | priorityFilter:priorityFilterOptions
+                  | assignedTechFilter:assignedTechFilterOptions
+                  | prioritySort:sortAscending).length === 0)">
+              <td colspan="10"><span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span></td>
+            </tr>
+            <tr *ngFor="let ticket of ticketArray
 									| listSearch:searchText
 									| statusFilter:statusFilterOptions 
 									| priorityFilter:priorityFilterOptions 
@@ -344,8 +431,17 @@
             </tr>
           </tbody>
           <tbody *ngIf="(selectedOption.value === 'sched_srvc_date')">
-            <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-            <tr *ngFor="let ticket of tickets | async  
+            <tr *ngIf="(!ticketArray)">
+              <app-loading-spinner></app-loading-spinner>
+            </tr>
+            <tr *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+                  | statusFilter:statusFilterOptions
+                  | priorityFilter:priorityFilterOptions
+                  | assignedTechFilter:assignedTechFilterOptions
+                  | scheduleSort:sortAscending).length === 0)">
+              <td colspan="10"><span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span></td>
+            </tr>
+            <tr *ngFor="let ticket of ticketArray 
 									| listSearch:searchText
 									| statusFilter:statusFilterOptions 
 									| priorityFilter:priorityFilterOptions 
@@ -385,13 +481,20 @@
       </div>
     </div>
     <div class="col-12 d-lg-none" *ngIf="(selectedOption.value === 'id')">
-      <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-      <div class="card mb-2" *ngFor="let ticket of tickets | async 
-											| listSearch:searchText
-											| statusFilter:statusFilterOptions 
-											| priorityFilter:priorityFilterOptions 
-											| assignedTechFilter:assignedTechFilterOptions 
-											| ticketIdSort:sortAscending">
+      <app-loading-spinner *ngIf="(!ticketArray)"></app-loading-spinner>
+      <p *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+            | statusFilter:statusFilterOptions
+            | priorityFilter:priorityFilterOptions
+            | assignedTechFilter:assignedTechFilterOptions
+            | ticketIdSort:sortAscending).length === 0)">
+        <span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span>
+      </p>
+      <div class="card mb-2" *ngFor="let ticket of ticketArray
+            | listSearch:searchText
+            | statusFilter:statusFilterOptions 
+            | priorityFilter:priorityFilterOptions 
+            | assignedTechFilter:assignedTechFilterOptions 
+            | ticketIdSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
           Ticket ID:&nbsp;{{ticket.id}} 
           <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
@@ -433,13 +536,20 @@
       </div>
     </div>
     <div class="col-12 d-lg-none" *ngIf="(selectedOption.value === 'client_name')">
-      <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-      <div class="card mb-2" *ngFor="let ticket of tickets | async 
-											| listSearch:searchText
-											| statusFilter:statusFilterOptions 
-											| priorityFilter:priorityFilterOptions 
-											| assignedTechFilter:assignedTechFilterOptions 
-											| clientSort:sortAscending">
+      <app-loading-spinner *ngIf="(!ticketArray)"></app-loading-spinner>
+      <p *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+              | statusFilter:statusFilterOptions
+              | priorityFilter:priorityFilterOptions
+              | assignedTechFilter:assignedTechFilterOptions
+              | clientSort:sortAscending).length === 0)">
+        <span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span>
+      </p>
+      <div class="card mb-2" *ngFor="let ticket of ticketArray
+              | listSearch:searchText
+              | statusFilter:statusFilterOptions 
+              | priorityFilter:priorityFilterOptions 
+              | assignedTechFilter:assignedTechFilterOptions 
+              | clientSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
           Ticket ID:&nbsp;{{ticket.id}} 
           <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
@@ -481,13 +591,20 @@
       </div>
     </div>
     <div class="col-12 d-lg-none" *ngIf="(selectedOption.value === 'client_loc_id')">
-      <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-      <div class="card mb-2" *ngFor="let ticket of tickets | async 
-											| listSearch:searchText
-											| statusFilter:statusFilterOptions 
-											| priorityFilter:priorityFilterOptions 
-											| assignedTechFilter:assignedTechFilterOptions 
-											| locationSort:sortAscending">
+      <app-loading-spinner *ngIf="(!ticketArray)"></app-loading-spinner>
+      <p *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+              | statusFilter:statusFilterOptions
+              | priorityFilter:priorityFilterOptions
+              | assignedTechFilter:assignedTechFilterOptions
+              | locationSort:sortAscending).length === 0)">
+        <span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span>
+      </p>
+      <div class="card mb-2" *ngFor="let ticket of ticketArray
+              | listSearch:searchText
+              | statusFilter:statusFilterOptions 
+              | priorityFilter:priorityFilterOptions 
+              | assignedTechFilter:assignedTechFilterOptions 
+              | locationSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
           Ticket ID:&nbsp;{{ticket.id}} 
           <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
@@ -529,13 +646,20 @@
       </div>
     </div>
     <div class="col-12 d-lg-none" *ngIf="(selectedOption.value === 'assigned_tech')">
-      <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-      <div class="card mb-2" *ngFor="let ticket of tickets | async 
-											| listSearch:searchText
-											| statusFilter:statusFilterOptions 
-											| priorityFilter:priorityFilterOptions 
-											| assignedTechFilter:assignedTechFilterOptions 
-											| techSort:sortAscending">
+      <app-loading-spinner *ngIf="(!ticketArray)"></app-loading-spinner>
+      <p *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+              | statusFilter:statusFilterOptions
+              | priorityFilter:priorityFilterOptions
+              | assignedTechFilter:assignedTechFilterOptions
+              | techSort:sortAscending).length === 0)">
+        <span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span>
+      </p>
+      <div class="card mb-2" *ngFor="let ticket of ticketArray
+              | listSearch:searchText
+              | statusFilter:statusFilterOptions 
+              | priorityFilter:priorityFilterOptions 
+              | assignedTechFilter:assignedTechFilterOptions 
+              | techSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
           Ticket ID:&nbsp;{{ticket.id}} 
           <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
@@ -577,13 +701,20 @@
       </div>
     </div>
     <div class="col-12 d-lg-none" *ngIf="(selectedOption.value === 'priority')">
-      <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-      <div class="card mb-2" *ngFor="let ticket of tickets | async 
-											| listSearch:searchText
-											| statusFilter:statusFilterOptions 
-											| priorityFilter:priorityFilterOptions 
-											| assignedTechFilter:assignedTechFilterOptions 
-											| prioritySort:sortAscending">
+      <app-loading-spinner *ngIf="(!ticketArray)"></app-loading-spinner>
+      <p *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+              | statusFilter:statusFilterOptions
+              | priorityFilter:priorityFilterOptions
+              | assignedTechFilter:assignedTechFilterOptions
+              | prioritySort:sortAscending).length === 0)">
+        <span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span>
+      </p>
+      <div class="card mb-2" *ngFor="let ticket of ticketArray
+              | listSearch:searchText
+              | statusFilter:statusFilterOptions 
+              | priorityFilter:priorityFilterOptions 
+              | assignedTechFilter:assignedTechFilterOptions 
+              | prioritySort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
           Ticket ID:&nbsp;{{ticket.id}} 
           <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>
@@ -625,13 +756,20 @@
       </div>
     </div>
     <div class="col-12 d-lg-none" *ngIf="(selectedOption.value === 'sched_srvc_date')">
-      <app-loading-spinner *ngIf="!(tickets | async)"></app-loading-spinner>
-      <div class="card mb-2" *ngFor="let ticket of tickets | async 
-											| listSearch:searchText
-											| statusFilter:statusFilterOptions 
-											| priorityFilter:priorityFilterOptions 
-											| assignedTechFilter:assignedTechFilterOptions 
-											| scheduleSort:sortAscending">
+      <app-loading-spinner *ngIf="(!ticketArray)"></app-loading-spinner>
+      <p *ngIf="(ticketArray && (ticketArray | listSearch:searchText
+            | statusFilter:statusFilterOptions
+            | priorityFilter:priorityFilterOptions
+            | assignedTechFilter:assignedTechFilterOptions
+            | scheduleSort:sortAscending).length === 0)">
+        <span class="alert alert-info w-100 d-block"><i class="material-icons">info</i> {{emptyArrayMessage}}</span>
+      </p>
+      <div class="card mb-2" *ngFor="let ticket of ticketArray
+            | listSearch:searchText
+            | statusFilter:statusFilterOptions 
+            | priorityFilter:priorityFilterOptions 
+            | assignedTechFilter:assignedTechFilterOptions 
+            | scheduleSort:sortAscending">
         <div class="card-header bg-primary text-white py-2" [routerLink]="['/ticket-detail', ticket.id]">
           Ticket ID:&nbsp;{{ticket.id}} 
           <span class="ml-2" *ngIf="(ticket.active)"><svg class="active" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 44"><polygon class="bolt-icon" points="22 19 13 19 18 0 0 25 9 25 4 44 22 19"/></svg></span>

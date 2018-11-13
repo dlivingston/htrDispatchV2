@@ -8,7 +8,6 @@
   <div [hidden]="!techClockedIn">
     <h5>Clocked In</h5>
     <div innerHTML={{clockedInMessage}}></div>
-    
   </div>
   <div [hidden]="techClockedIn">
     <form #ttForm="ngForm" [ngClass]="formNotValid ? 'was-validated' : ''">

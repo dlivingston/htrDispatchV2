@@ -19,13 +19,11 @@ export class PrioritySortPipe implements PipeTransform {
       return comparison;
     }
     if (tickets) {
-      let returnArray = tickets.sort(compare);
-      if ((sortDirection == true && returnArray[0].priority < returnArray[returnArray.length - 1].priority) || (sortDirection == false && returnArray[0].priority > returnArray[returnArray.length - 1].priority)) {
-        return returnArray;
+      if (sortDirection == true) {
+        return tickets.sort(compare);
       } else {
-        return returnArray.reverse();
+        return tickets.sort(compare).reverse();
       }
     }
   }
-
 }
