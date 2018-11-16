@@ -41,13 +41,12 @@ import { UploadFormComponent } from './shared/upload-form/upload-form.component'
 import { TimeTrackerComponent } from './time-tracker/time-tracker.component';
 import { ActivityLogComponent } from './activity-log/activity-log.component';
 import { ElapsedTimePipe } from './elapsed-time.pipe';
+import { AdminPanelComponent } from './admin-panel/admin-panel.component';
+import { AppRoutingModule } from './/app-routing.module';
+import { PartsListComponent } from './parts-list/parts-list.component';
+import { ClientsListComponent } from './clients-list/clients-list.component';
+import { UsersComponent } from './users/users.component';
 
-const appRoutes: Routes = [
-  { path: '', component: LoginComponent },
-  { path: 'new-ticket', component: NewTicketComponent },
-  { path: 'ticket-detail/:id', component: TicketDetailsComponent },
-  { path: 'ticket-list', component: TicketListComponent }
-];
 
 @NgModule({
   declarations: [
@@ -74,16 +73,17 @@ const appRoutes: Routes = [
     UploadFormComponent,
     TimeTrackerComponent,
     ActivityLogComponent,
-    ElapsedTimePipe
+    ElapsedTimePipe,
+    AdminPanelComponent,
+    PartsListComponent,
+    ClientsListComponent,
+    UsersComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
     HttpClientModule,
-    RouterModule.forRoot(
-      appRoutes, {}
-    ),
     BsDatepickerModule.forRoot(),
     ModalModule.forRoot(),
     AccordionModule.forRoot(),
@@ -91,7 +91,8 @@ const appRoutes: Routes = [
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireStorageModule,
-    AngularFireAuthModule
+    AngularFireAuthModule,
+    AppRoutingModule
   ], 
   entryComponents: [
     TimeTrackerComponent,

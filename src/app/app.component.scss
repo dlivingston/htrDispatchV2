@@ -1,8 +1,8 @@
 #htr-logo-full {
-	height: 60px;
+	height: 50px;
 }
 #htr-logo-sm {
-	height: 40px;
+	height: 36px;
 }
 
 svg {
@@ -17,4 +17,28 @@ svg {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	padding: 0 16px;
+	height: 60px;
+	.admin-menu-button {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 60px;
+		height: 60px;
+		button {
+			width: 60px;
+			height: 60px;
+			line-height: 60px;
+			border: 0;
+			border-radius: 0;
+			padding: 0;
+			.material-icons {
+				font-size: 32px;
+				top: 11px;
+			}
+		}
+	}
+	&.isAdmin {
+		padding-left: 68px;
+	}
 }

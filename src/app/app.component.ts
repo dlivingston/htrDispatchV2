@@ -14,16 +14,27 @@ export class AppComponent {
   currentUser: Observable<any>;
   email: string = '';
   password: string = '';
+  showAdminPanel: boolean;
   constructor(public authService: AuthService, public af: AngularFireDatabase, private router: Router) {
     this.authService.user.subscribe(user => {
       if (user) {
         this.currentUser = this.af.object('/users/' + user.uid).valueChanges();
       }
     });
+    this.showAdminPanel = false;
   }
 
   logout() {
     this.authService.logout();
     this.router.navigate(['']);
   }
+
+  onAdminPanelClose(show: boolean){
+    this.showAdminPanel = show;
+  }
+
+  toggleAdminPanel() {
+    this.showAdminPanel ? this.showAdminPanel = false : this.showAdminPanel = true;
+  }
+
 }
